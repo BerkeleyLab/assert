@@ -25,7 +25,7 @@ contains
         represent_diagnostics_as_string: &
         if (.not. present(diagnostic_data)) then
 
-          trailer = "foo"
+          trailer = "(none provided)"
 
         else
 
