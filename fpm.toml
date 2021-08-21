@@ -1,0 +1,6 @@
+name = "assert"
+version = "1.0.0"
+license = "BSD"
+author = ["Damian Rouson"]
+maintainer = "damian@sourceryinstitute.org"
+copyright = "2021 Sourcery Institute"
