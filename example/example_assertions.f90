@@ -1,5 +1,5 @@
 program assertion_examples
-  !! Demonstrate the use of assetions
+  !! Demonstrate the use of assertions
   use assert_m, only : assert
   implicit none
   integer, parameter :: i = 1
