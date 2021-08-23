@@ -16,9 +16,10 @@
 *.dylib
 *.dll
 
-# Fortran module files
+# Fortran (sub)module files
 *.mod
 *.smod
+*.sub
 
 # Compiled Static libraries
 *.lai
