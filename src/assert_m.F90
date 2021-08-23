@@ -31,7 +31,7 @@ module assert_m
 
   interface
 
-    elemental module subroutine assert(assertion, description, diagnostic_data)
+    pure module subroutine assert(assertion, description, diagnostic_data)
       !! If assertion is .false., error-terminate with a character stop code that contains diagnostic_data if present
       implicit none
       logical, intent(in) :: assertion
