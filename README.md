@@ -32,47 +32,36 @@ Use Cases
 2. Postconditions (assurances): expressions that must evaluate to `.false.`
 3. Invariants: universal pre- and postconditions that must always be true when all procedures in a class or package start or finish executing.
 
-### Examples
-See the [./example](./example) subdirectory.
 
 Downloading, Building, and Running Examples
 -------------------------------------------
-Prerequisites:
+
+### Prerequisites
 1. A Fortran 2018 compiler (recent Cray, Intel, GNU, and NAG compiler versions suffice).
 2. The [Fortran Package Manager](https://github.com/fortran-lang/fpm).
 3. _Optional_: [OpenCoarrays] for parallel execution with the GNU Fortran compiler.
 
-### Single-image execution
+### Downloading and Building
+
+#### Building for single-image (serial) execution
 ```
 git clone git@github.com:sourceryinstitute/assert
 cd assert
-fpm run --example simple_assertions
-fpm run --example derived_type_diagnostic
-```
-where the `fpm run` automatically invokes `fpm build` if necessary, .e.g., the `fpm` source has
-changed since the most recent build.  If `assert` is working correctly, the first `fpm run` above
-will error-terminate with the character stop code
-```
-Assertion "x > 0" failed on image 1 with diagnostic data "-1.00000000"
-```
-and the second `fpm run` above will error-terminate with the character stop code
-```
-Assertion "stuff_t%z(): self%defined()" failed on image 1 with diagnostic data "(none provided)"
+fpm build
 ```
 
-### Multi-image execution with `gfortran` and OpenCoarrays
+#### Building for multi-image (parallel) execution
+With `gfortran` and OpenCoarrays installed,
 ```
-git clone git@github.com/sourceryinstitute/assert
+git clone git@github.com:sourceryinstitute/assert
 cd assert
-fpm run --compiler caf --runner "cafrun -n 2" --example simple_assertions
-fpm run --compiler caf --runner "cafrun -n 2" --example derived_type_diagnostic
+fpm build --compiler caf 
 ```
-Replace either instance of `2` above with the desired number of images to run for parallel execution.
-If `assert` is working correctly, both of the latter `fpm run` commands will error-terminate with one
-or more images providing stop codes analogous to those quoted in the [Single-image execution] section.
+
+### Running the examples
+See the [./example](./example) subdirectory.
 
 [Hyperlinks]:#
 [OpenCoarrays]: https://github.com/sourceryinstitute/opencoarrays
 [Enforcing programming contracts]: #enforcing-programming-contracts
 [Single-image execution]: #single-image-execution
-
