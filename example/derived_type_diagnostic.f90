@@ -54,11 +54,11 @@ contains
   module procedure construct
     new_stuff_t%z_ = z
     new_stuff_t%defined_ = .true.
-    call assert(new_stuff_t%defined(), "new_stuff_t%defined()", new_stuff_t%defined_) ! Postcondition
+    call assert(new_stuff_t%defined(), "stuff_t construct(): new_stuff_t%defined()", new_stuff_t%defined_) ! Postcondition
   end procedure
 
   module procedure z
-    call assert(self%defined(), "new_stuff_t%defined()") ! Precondition
+    call assert(self%defined(), "stuff_t%z(): self%defined()") ! Precondition
     self_z = self%z_
   end procedure
 
@@ -138,7 +138,7 @@ program diagnostic_data_pattern
   type(stuff_t) stuff
  
   associate (i => stuff_t(z=(0.,1.)))
-    call assert(i%defined(), "i%defined()", characterizable_stuff_t(i)) ! Passes: constructor postcondition ensures defined data
+    call assert(i%defined(), "main: i%defined()", characterizable_stuff_t(i))!Passes: constructor postcondition ensures defined data
   end associate
 
   print *, stuff%z() ! Fails: accessor precondition catches use of undefined data
