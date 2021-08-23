@@ -42,7 +42,7 @@ Language ([OCL]).  The constraints describe the precondition and postcondition
 checked in [derived_type_diagnostic.f90] and the context for those constraints.
 
 The UML diagram below was generated in the [Atom] editor [PlantUML] package
-from the PlantUML script in this repository's [../doc/] folder.
+from the PlantUML script in this repository's [doc] folder.
 
 ![Classes involved in Derived-Type Diagnostic Example](https://user-images.githubusercontent.com/13108868/130385757-6b79e5f1-5dec-440c-98f5-0f659c538754.png)
 
@@ -91,3 +91,4 @@ with `.false.`.
 [OCL]: https://en.wikipedia.org/wiki/Object_Constraint_Language
 [Atom]: https://atom.io
 [PlantUML]: https://plantuml.com
+[doc]: ../doc/
