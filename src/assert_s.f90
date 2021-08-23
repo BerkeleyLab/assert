@@ -20,8 +20,10 @@ contains
       check_assertion: &
       if (.not. assertion) then
 
-        header = 'Assertion "' // description // '" failed on image ' // string(this_image())
-
+        associate(me=>this_image()) ! work around gfortran bug
+          header = 'Assertion "' // description // '" failed on image ' // string(me)
+        end associate
+ 
         represent_diagnostics_as_string: &
         if (.not. present(diagnostic_data)) then
 
@@ -79,7 +81,7 @@ contains
       number_as_string = trim(adjustl(untrimmed_string))
 
     end function string
-    
+
   end procedure
 
 end submodule
