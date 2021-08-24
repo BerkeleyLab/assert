@@ -11,7 +11,12 @@ Motivations
 
 Overview
 --------
-This assertion utility contains one public procedure and one public abstract type: `assert` and `characterizable_t`, respectively.
+This assertion utility contains three public entities:
+
+1. an `assert` subroutine,
+2. a `characterizable_t` abstract type supporting `assert`, and
+3. an `intrinsic_array_t` non-abstract type extending `characterizable_t`.
+
 The `assert` subroutine
 
 1. error-terminates with a variable stop code when a user-defined logical assertion fails,
@@ -19,7 +24,9 @@ The `assert` subroutine
 3. is callable inside `pure` procedures, and
 4. can be eliminated during an optimizing compiler's dead-code removal phase based on a preprocessor macro: `-DUSE_ASSERTIONS=.false.`.
 
-The `characterizable_t` abstract derived type provides a mechanism for obtaining diagnostic data from a user-defined derived type that implements the `characterizable_t`'s `as_character()` deferred binding.
+The `characterizable_t` type defines an `as_character()` deferred binding that produces `character` strings for use as diagnostic output from a user-defined derived type that extends  `characterizable_t` and ipmlements the deferred binding.
+
+The `intrinsic_array_t` type that extends `characterizable_t` provides a convenient mechanism for producing diagnostic output from arrays of intrinsic type `complex`, `integer`, `logical`, or `real`.
 
 Use Cases
 ---------
@@ -37,31 +44,52 @@ Downloading, Building, and Running Examples
 -------------------------------------------
 
 ### Prerequisites
-1. A Fortran 2018 compiler (recent Cray, Intel, GNU, and NAG compiler versions suffice).
-2. The [Fortran Package Manager](https://github.com/fortran-lang/fpm).
+1. A Fortran 2018 compiler.
+2. The [Fortran Package Manager].
 3. _Optional_: [OpenCoarrays] for parallel execution with the GNU Fortran compiler.
 
-### Downloading and Building
+Recent versions of the Cray, Intel, GNU, and NAG compilers suffice.  Assert was developed primarily with `gfortran` 11.1.0 and `nagfor` 7.0 Build 7044.
 
-#### Building for single-image (serial) execution
+### Downloading, building, and testing
+
+#### Downloading Assert
 ```
 git clone git@github.com:sourceryinstitute/assert
 cd assert
-fpm build
 ```
 
-#### Building for multi-image (parallel) execution
+#### Building Assert for single-image (serial) execution
+```
+fpm test
+fpm run --example simple_assertions
+fpm run --example derived_type_diagnostic
+```
+where `fpm test` builds the Assert library and runs the test suite, including the tests.
+
+#### Building Assert for multi-image (parallel) execution
 With `gfortran` and OpenCoarrays installed,
 ```
-git clone git@github.com:sourceryinstitute/assert
-cd assert
-fpm build --compiler caf 
+fpm test --compiler caf --runner "cafrun -n 2" unit_tests
+fpm test --compiler caf --runner "cafrun -n 2" intentionally-failing-tests
+fpm run --example simple_assertions
+fpm run --example derived_type_diagnostic
 ```
+
+Please submit an issue to request documentation on using Assert with other compilers or submit a pull request to add such documenation.  
 
 ### Running the examples
 See the [./example](./example) subdirectory.
+
+Documentation
+-------------
+For further documentation, please see [example/README.md] and the [tests].  Also, the code in [src] has comments formatted for generating HTML documentation using [FORD].
 
 [Hyperlinks]:#
 [OpenCoarrays]: https://github.com/sourceryinstitute/opencoarrays
 [Enforcing programming contracts]: #enforcing-programming-contracts
 [Single-image execution]: #single-image-execution
+[example/README.md]: ./example/README.md
+[tests]: ./tests
+[src]: ./src
+[FORD]: https://github.com/Fortran-FOSS-Programmers/ford
+[Fortran Package Manager]: https://github.com/fortran-lang/fpm
