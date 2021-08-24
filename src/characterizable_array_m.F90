@@ -7,20 +7,19 @@ module characterizable_array_m
   public :: characterizable_array_t
 
   type, extends(characterizable_t) :: characterizable_array_t
-    integer, allocatable :: a(:)
+    complex, allocatable :: c(:)
+    integer, allocatable :: i(:)
+    logical, allocatable :: l(:)
+    real, allocatable :: r(:)
   contains
     procedure :: as_character
   end type
 
   interface characterizable_array_t
     
-    pure module function characterizable_integer_array(array) result(characterizable_array)
+    pure module function construct(array) result(characterizable_array)
       implicit none
-#ifdef __GFORTRAN__
-      integer, dimension(:), intent(in) :: array
-#else
-      integer, dimension(*), intent(in) :: array
-#endif
+      class(*), intent(in) :: array(..)
       type(characterizable_array_t) characterizable_array
     end function
     
