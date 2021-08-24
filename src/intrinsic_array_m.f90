@@ -1,12 +1,12 @@
-module characterizable_array_m
+module intrinsic_array_m
   !! Define an abstract class that supports object representation in character form
   use characterizable_m, only : characterizable_t
   implicit none
 
   private
-  public :: characterizable_array_t
+  public :: intrinsic_array_t
 
-  type, extends(characterizable_t) :: characterizable_array_t
+  type, extends(characterizable_t) :: intrinsic_array_t
     complex, allocatable :: c(:)
     integer, allocatable :: i(:)
     logical, allocatable :: l(:)
@@ -15,12 +15,12 @@ module characterizable_array_m
     procedure :: as_character
   end type
 
-  interface characterizable_array_t
+  interface intrinsic_array_t
     
-    pure module function construct(array) result(characterizable_array)
+    pure module function construct(array) result(intrinsic_array)
       implicit none
       class(*), intent(in) :: array(..)
-      type(characterizable_array_t) characterizable_array
+      type(intrinsic_array_t) intrinsic_array
     end function
     
   end interface
@@ -29,10 +29,10 @@ module characterizable_array_m
     
     pure module function as_character(self) result(character_self)
       implicit none
-      class(characterizable_array_t), intent(in) :: self
+      class(intrinsic_array_t), intent(in) :: self
       character(len=:), allocatable :: character_self
     end function
     
   end interface
 
-end module characterizable_array_m
+end module intrinsic_array_m

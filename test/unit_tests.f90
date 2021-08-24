@@ -1,7 +1,7 @@
 program main
   !! Test assertions expected to succeed
   use assert_m, only : assert
-  use characterizable_array_m, only : characterizable_array_t
+  use intrinsic_array_m, only : intrinsic_array_t
   implicit none
 
   complex, parameter :: z = (1.,1.)
@@ -21,10 +21,10 @@ program main
     logical, parameter :: logical_array(*) = [.true., .true.]
     real, parameter :: real_array(*) = [1., 2.]
 
-    call assert(all(abs(complex_array) < 2.), "main: all(abs(complex_array) < 2.)", characterizable_array_t(complex_array))
-    call assert(all(integer_array < 3), "main: all(int_array < 3)", characterizable_array_t(integer_array))
-    call assert(all(logical_array), "main: all(logical_array)", characterizable_array_t(logical_array))
-    call assert(all(real_array < 3.), "main: all(real_array < 3.)", characterizable_array_t(real_array))
+    call assert(all(abs(complex_array) < 2.), "main: all(abs(complex_array) < 2.)", intrinsic_array_t(complex_array))
+    call assert(all(integer_array < 3), "main: all(int_array < 3)", intrinsic_array_t(integer_array))
+    call assert(all(logical_array), "main: all(logical_array)", intrinsic_array_t(logical_array))
+    call assert(all(real_array < 3.), "main: all(real_array < 3.)", intrinsic_array_t(real_array))
   end block
 
   sync all
