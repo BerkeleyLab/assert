@@ -13,16 +13,16 @@ Overview
 --------
 This assertion utility contains three public entities:
 
-1. an `assert` subroutine,
-2. a `characterizable_t` abstract type supporting `assert`, and
-3. an `intrinsic_array_t` non-abstract type extending `characterizable_t`.
+1. An `assert` subroutine,
+2. A `characterizable_t` abstract type supporting `assert`, and
+3. An `intrinsic_array_t` non-abstract type extending `characterizable_t`.
 
 The `assert` subroutine
 
-1. error-terminates with a variable stop code when a user-defined logical assertion fails,
-2. includes user-supplied diagnostic data in the output if provided by the calling procedure,
-3. is callable inside `pure` procedures, and
-4. can be eliminated during an optimizing compiler's dead-code removal phase based on a preprocessor macro: `-DUSE_ASSERTIONS=.false.`.
+* Error-terminates with a variable stop code when a user-defined logical assertion fails,
+* Includes user-supplied diagnostic data in the output if provided by the calling procedure,
+* Is callable inside `pure` procedures, and
+* Can be eliminated during an optimizing compiler's dead-code removal phase based on a preprocessor macro: `-DUSE_ASSERTIONS=.false.`.
 
 The `characterizable_t` type defines an `as_character()` deferred binding that produces `character` strings for use as diagnostic output from a user-defined derived type that extends  `characterizable_t` and ipmlements the deferred binding.
 
@@ -34,11 +34,14 @@ Use Cases
 2. Produce output in `pure` procedures for debugging purposes.
 
 ### Enforcing programming contracts
+Programming can be thought of as requirements for correct execution of a procedure and assurances for the result of correct execution.
+The requirements and assurances might be constraints of three kinds:
 
-1. Preconditions (requirements): `logical` expressions that must evaluate to `.true.` when a procedure starts execution,
-2. Postconditions (assurances): expressions that must evaluate to `.false.`
-3. Invariants: universal pre- and postconditions that must always be true when all procedures in a class or package start or finish executing.
+1. **Preconditions (requirements):** `logical` expressions that must evaluate to `.true.` when a procedure starts execution,
+2. **Postconditions (assurances):** expressions that must evaluate to `.true.` when a procedure finishes execution, and
+3. **Invariants:** universal pre- and postconditions that must always be true when all procedures in a class start or finish executing.
 
+The [examples/README.md] file shows examples of writing constraints in notes on class diagrams using the formal syntax of the Object Constraint Language ([OCL]).
 
 Downloading, Building, and Running Examples
 -------------------------------------------
@@ -58,24 +61,21 @@ git clone git@github.com:sourceryinstitute/assert
 cd assert
 ```
 
-#### Building Assert for single-image (serial) execution
+#### Building and testing: single-image (serial) execution
+The following command builds Assert and runs the full test suite in a single image:
 ```
 fpm test
-fpm run --example simple_assertions
-fpm run --example derived_type_diagnostic
 ```
 where `fpm test` builds the Assert library and runs the test suite, including the tests.
 
-#### Building Assert for multi-image (parallel) execution
+#### Building and testing: multi-image (parallel) execution
 With `gfortran` and OpenCoarrays installed,
 ```
-fpm test --compiler caf --runner "cafrun -n 2" unit_tests
-fpm test --compiler caf --runner "cafrun -n 2" intentionally-failing-tests
-fpm run --example simple_assertions
-fpm run --example derived_type_diagnostic
+fpm test --compiler caf --runner "cafrun -n 2" designed-to-terminate-normally
+fpm test --compiler caf --runner "cafrun -n 2" designed-to-error-terminate
 ```
 
-Please submit an issue to request documentation on using Assert with other compilers or submit a pull request to add such documenation.  
+For documentation on using Assert with other compilers, please submit an issue or pull request.  
 
 ### Running the examples
 See the [./example](./example) subdirectory.
@@ -93,3 +93,4 @@ For further documentation, please see [example/README.md] and the [tests].  Also
 [src]: ./src
 [FORD]: https://github.com/Fortran-FOSS-Programmers/ford
 [Fortran Package Manager]: https://github.com/fortran-lang/fpm
+[OCL]: https://en.wikipedia.org/wiki/Object_Constraint_Language
