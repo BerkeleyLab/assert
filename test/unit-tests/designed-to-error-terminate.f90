@@ -1,5 +1,5 @@
 program designed_to_error_terminate
-  !! Test assertions intended that are intended to error terminate
+  !! Test assertions that are intended to error terminate
   use assert_m, only : assert
   implicit none
   
