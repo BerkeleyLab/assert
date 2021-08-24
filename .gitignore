@@ -1,3 +1,6 @@
+# Build tree
+build
+
 # Prerequisites
 *.d
 
