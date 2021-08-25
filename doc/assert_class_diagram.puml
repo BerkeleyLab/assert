@@ -1,0 +1,21 @@
+@startuml
+Title Classes in the Assert Library
+
+hide empty members
+
+abstract class characterizable_t{
+  {abstract} as_character() : character(len=:), allocatable
+}
+
+class intrinsic_array_t{
+  c[] : complex
+  i[] : integer 
+  l[] : logical 
+  r[]: real
+  intrinsic_arry_t(array[..] : class(*)) : intrinsic_array_t
+  as_character() : character(len=:), allocatable
+}
+
+intrinsic_array_t .up.|> characterizable_t : implements
+
+@enduml

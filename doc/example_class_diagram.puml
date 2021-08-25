@@ -24,6 +24,6 @@ class characterizable_stuff_t{
 }
 
 characterizable_stuff_t *-down- stuff_t : aggregates
-characterizable_stuff_t -up-|> characterizable_t : implements
+characterizable_stuff_t .up.|> characterizable_t : implements
 
 @enduml
