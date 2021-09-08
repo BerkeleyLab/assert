@@ -34,3 +34,6 @@ build
 *.exe
 *.out
 *.app
+
+# FORD-generated documentation files
+doc/html
