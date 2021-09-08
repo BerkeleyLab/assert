@@ -7,10 +7,15 @@ module intrinsic_array_m
   public :: intrinsic_array_t
 
   type, extends(characterizable_t) :: intrinsic_array_t
-    complex, allocatable :: c(:)
-    integer, allocatable :: i(:)
-    logical, allocatable :: l(:)
-    real, allocatable :: r(:)
+    complex, allocatable :: complex_1D(:)
+    integer, allocatable :: integer_1D(:)
+    logical, allocatable :: logical_1D(:)
+    real,    allocatable :: real_1D(:)
+
+    complex, allocatable :: complex_2D(:,:)
+    integer, allocatable :: integer_2D(:,:)
+    logical, allocatable :: logical_2D(:,:)
+    real,    allocatable :: real_2D(:,:)
   contains
     procedure :: as_character
   end type
