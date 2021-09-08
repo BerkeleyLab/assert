@@ -35,6 +35,21 @@ contains
       class default
         error  stop "intrinsic_array_t construct: unsupported rank-2 type"
       end select
+
+    rank(3)
+      select type(array)
+      type is(complex)
+        intrinsic_array%complex_3D = array
+      type is(integer)
+        intrinsic_array%integer_3D = array
+      type is(logical)
+        intrinsic_array%logical_3D = array
+      type is(real)
+        intrinsic_array%real_3D = array
+      class default
+        error  stop "intrinsic_array_t construct: unsupported rank-3 type"
+      end select
+
     rank default
       error  stop "intrinsic_array_t construct: unsupported rank"
     end select

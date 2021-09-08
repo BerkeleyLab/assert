@@ -16,6 +16,11 @@ module intrinsic_array_m
     integer, allocatable :: integer_2D(:,:)
     logical, allocatable :: logical_2D(:,:)
     real,    allocatable :: real_2D(:,:)
+
+    complex, allocatable :: complex_3D(:,:,:)
+    integer, allocatable :: integer_3D(:,:,:)
+    logical, allocatable :: logical_3D(:,:,:)
+    real,    allocatable :: real_3D(:,:,:)
   contains
     procedure :: as_character
   end type
