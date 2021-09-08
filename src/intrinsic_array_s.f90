@@ -5,8 +5,10 @@ contains
 
   module procedure construct
 
+#ifndef NAGFOR
     select rank(array)
     rank(1)
+#endif
       select type(array)
       type is(complex)
         intrinsic_array%c = array
@@ -19,9 +21,11 @@ contains
       class default
         error  stop "intrinsic_array_t construct: unsupported type"
       end select
+#ifndef NAGFOR
     rank default
       error  stop "intrinsic_array_t construct: unsupported rank"
     end select
+#endif
 
   end procedure
   

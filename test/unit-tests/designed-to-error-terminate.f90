@@ -43,7 +43,21 @@ contains
   subroutine co_all(boolean)
     logical, intent(inout) :: boolean
 
+#ifndef NAGFOR
     call co_reduce(boolean, both)
+#else
+    ! Because parallel NAG runs happen in shared memory and because this function is called only once in 
+    ! one test, a simplistic, non-scalable reduction algorithm suffices until co_reduce is supported.
+    block
+      logical, save :: my_boolean[*]
+      integer i
+
+      my_boolean = boolean
+      do i=1,num_images()
+        my_boolean = my_boolean .and.  my_boolean[i]
+      end do
+    end block
+#endif
 
   end subroutine
 
