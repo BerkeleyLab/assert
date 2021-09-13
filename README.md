@@ -67,6 +67,10 @@ The following command builds Assert and runs the full test suite in a single ima
 fpm test
 ```
 where `fpm test` builds the Assert library and runs the test suite, including the tests.
+To build with the Numerical Algorithms Group (NAG) Fortran compiler, use
+```
+fpm test --compiler nagfor --flag -fpp
+```
 
 #### Building and testing: multi-image (parallel) execution
 With `gfortran` and OpenCoarrays installed,
