@@ -51,7 +51,8 @@ Downloading, Building, and Running Examples
 2. The [Fortran Package Manager].
 3. _Optional_: [OpenCoarrays] for parallel execution with the GNU Fortran compiler.
 
-Recent versions of the Cray, Intel, GNU, and NAG compilers suffice.  Assert was developed primarily with `gfortran` 11.1.0 and `nagfor` 7.0 Build 7044.
+Assert was developed primarily with `gfortran` 11.2.0 and `nagfor` 7.1.
+Recent versions of the Cray and Intel compilers should also suffice.  
 
 ### Downloading, building, and testing
 
@@ -75,8 +76,12 @@ fpm test --compiler nagfor --flag -fpp
 #### Building and testing: multi-image (parallel) execution
 With `gfortran` and OpenCoarrays installed,
 ```
-fpm test --compiler caf --runner "cafrun -n 2" designed-to-terminate-normally
-fpm test --compiler caf --runner "cafrun -n 2" designed-to-error-terminate
+fpm test --compiler caf --runner "cafrun -n 2"
+```
+To build and test with the Numerical Algorithms Group (NAG) Fortran compiler version
+7.1 or later, use
+```
+fpm test --compiler=nagfor --flag="-coarray=cosmp -fpp -f2018"
 ```
 
 For documentation on using Assert with other compilers, please submit an issue or pull request.  
