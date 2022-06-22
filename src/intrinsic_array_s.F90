@@ -18,6 +18,8 @@ contains
         intrinsic_array%logical_1D = array
       type is(real)
         intrinsic_array%real_1D = array
+      type is(double precision)
+        intrinsic_array%double_precision_1D = array
       class default
         error  stop "intrinsic_array_t construct: unsupported rank-2 type"
       end select
@@ -32,6 +34,8 @@ contains
         intrinsic_array%logical_2D = array
       type is(real)
         intrinsic_array%real_2D = array
+      type is(double precision)
+        intrinsic_array%double_precision_2D = array
       class default
         error  stop "intrinsic_array_t construct: unsupported rank-2 type"
       end select
@@ -46,6 +50,8 @@ contains
         intrinsic_array%logical_3D = array
       type is(real)
         intrinsic_array%real_3D = array
+      type is(double precision)
+        intrinsic_array%double_precision_3D = array
       class default
         error  stop "intrinsic_array_t construct: unsupported rank-3 type"
       end select
@@ -77,6 +83,9 @@ contains
     else if (allocated(self%real_1D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%real_1D))
       write(character_self, *) self%real_1D
+    else if (allocated(self%double_precision_1D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%double_precision_1D))
+      write(character_self, *) self%double_precision_1D
     else if (allocated(self%complex_2D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%complex_2D))
       write(character_self, *) self%complex_2D
@@ -89,6 +98,24 @@ contains
     else if (allocated(self%real_2D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%real_2D))
       write(character_self, *) self%real_2D
+    else if (allocated(self%double_precision_2D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%double_precision_2D))
+      write(character_self, *) self%double_precision_2D
+    else if (allocated(self%complex_2D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%complex_3D))
+      write(character_self, *) self%complex_3D
+    else if (allocated(self%integer_3D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%integer_3D))
+      write(character_self, *) self%integer_3D
+    else if (allocated(self%logical_3D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%logical_1D))
+      write(character_self, *) self%logical_3D
+    else if (allocated(self%real_3D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%real_3D))
+      write(character_self, *) self%real_3D
+    else if (allocated(self%double_precision_3D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%double_precision_3D))
+      write(character_self, *) self%double_precision_3D
     end if
 
     character_self = trim(adjustl(character_self))
