@@ -28,10 +28,16 @@ The `characterizable_t` type defines an `as_character()` deferred binding that p
 
 The `intrinsic_array_t` type that extends `characterizable_t` provides a convenient mechanism for producing diagnostic output from arrays of intrinsic type `complex`, `integer`, `logical`, or `real`.
 
+Documentation
+-------------
+See [Assert's GitHub Pages site] for HTML documentation generated with [`ford`].
+
 Use Cases
 ---------
+Two common use cases include
+
 1. [Enforcing programming contracts] throughout a project via runtime checks.
-2. Produce output in `pure` procedures for debugging purposes.
+2. Producing output in `pure` procedures for debugging purposes.
 
 ### Enforcing programming contracts
 Programming can be thought of as requirements for correct execution of a procedure and assurances for the result of correct execution.
@@ -103,3 +109,5 @@ For further documentation, please see [example/README.md] and the [tests].  Also
 [FORD]: https://github.com/Fortran-FOSS-Programmers/ford
 [Fortran Package Manager]: https://github.com/fortran-lang/fpm
 [OCL]: https://en.wikipedia.org/wiki/Object_Constraint_Language
+[Assert's GitHub Pages site]: https://sourceryinstitute.github.io/assert/
+[`ford`]: https://github.com/Fortran-FOSS-Programmers/ford
