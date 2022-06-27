@@ -6,7 +6,7 @@ contains
   module procedure construct
 
 #ifndef NAGFOR
-    select rank(array)
+  select rank(array)
     rank(1)
 #endif
       select type(array)
@@ -67,13 +67,20 @@ contains
     integer, parameter :: single_number_width=32
 
     if (1 /= count( & 
-      [ allocated(self%complex_1D), allocated(self%integer_1D), allocated(self%logical_1D), allocated(self%real_1D) & 
-       ,allocated(self%complex_2D), allocated(self%integer_2D), allocated(self%logical_2D), allocated(self%real_2D) &
+      [ allocated(self%complex_1D), allocated(self%complex_double_1D), allocated(self%integer_1D), &
+        allocated(self%logical_1D), allocated(self%real_1D), &
+        allocated(self%complex_2D), allocated(self%complex_double_2D), allocated(self%integer_2D), &
+        allocated(self%logical_2D), allocated(self%real_2D), &
+        allocated(self%complex_3D), allocated(self%complex_double_3D), allocated(self%integer_3D), &
+        allocated(self%logical_3D), allocated(self%real_3D) &
       ])) error stop "intrinsic_array_t as_character: ambiguous component allocation status."
 
     if (allocated(self%complex_1D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%complex_1D))
       write(character_self, *) self%complex_1D
+    else if (allocated(self%complex_double_1D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%complex_double_1D))
+      write(character_self, *) self%complex_double_1D
     else if (allocated(self%integer_1D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%integer_1D))
       write(character_self, *) self%integer_1D
@@ -89,6 +96,9 @@ contains
     else if (allocated(self%complex_2D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%complex_2D))
       write(character_self, *) self%complex_2D
+    else if (allocated(self%complex_double_2D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%complex_double_2D))
+      write(character_self, *) self%complex_double_2D
     else if (allocated(self%integer_2D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%integer_2D))
       write(character_self, *) self%integer_2D
@@ -101,9 +111,12 @@ contains
     else if (allocated(self%double_precision_2D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%double_precision_2D))
       write(character_self, *) self%double_precision_2D
-    else if (allocated(self%complex_2D)) then
+    else if (allocated(self%complex_3D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%complex_3D))
       write(character_self, *) self%complex_3D
+    else if (allocated(self%complex_double_3D)) then
+      character_self = repeat(" ", ncopies = single_number_width*size(self%complex_double_3D))
+      write(character_self, *) self%complex_double_3D
     else if (allocated(self%integer_3D)) then
       character_self = repeat(" ", ncopies = single_number_width*size(self%integer_3D))
       write(character_self, *) self%integer_3D
