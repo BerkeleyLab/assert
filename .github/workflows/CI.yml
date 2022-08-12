@@ -15,7 +15,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - uses: fortran-lang/setup-fpm@v3
+    - uses: fortran-lang/setup-fpm@v4
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
