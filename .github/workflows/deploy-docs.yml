@@ -23,11 +23,10 @@ jobs:
 
     - name: Build Developer Documenation
       run: |
-        cd doc
         # Turn warnings into errors
         ford doc-generator.md > ford_output.txt
         cat ford_output.txt; if grep -q -i Warning ford_output.txt; then exit 1; fi
-        cp ../README.md html
+        cp ./README.md ./doc/html
 
     - name: Upload Documentation
       uses: actions/upload-artifact@v2
