@@ -32,7 +32,7 @@ program designed_to_error_terminate
 
 contains
 
-  pure function and(lhs,rhs) result(lhs_and_rhs)
+  pure function and_operation(lhs,rhs) result(lhs_and_rhs)
     logical, intent(in) :: lhs, rhs
     logical lhs_and_rhs
 
@@ -43,7 +43,7 @@ contains
   subroutine co_all(boolean)
     logical, intent(inout) :: boolean
 
-    call co_reduce(boolean, and)
+    call co_reduce(boolean, and_operation)
 
   end subroutine
 
