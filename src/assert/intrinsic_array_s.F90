@@ -135,7 +135,7 @@ contains
     character_self = trim(adjustl(character_self))
   end procedure
 
-#else // ifndef _CRAYFTN
+#else
 
     module procedure complex_array
 
