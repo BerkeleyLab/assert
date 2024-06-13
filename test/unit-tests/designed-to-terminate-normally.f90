@@ -33,8 +33,11 @@ program designed_to_terminate_normally
 
   end block array_diagnostic_data
 
+#ifndef __flang__
   sync all
 
-  if (this_image()==1) print *, "----> All tests designed to terminate normally pass. <----"
+  if (this_image()==1) &
+#endif
+   print *, "----> All tests designed to terminate normally pass. <----"
 
 end program designed_to_terminate_normally
