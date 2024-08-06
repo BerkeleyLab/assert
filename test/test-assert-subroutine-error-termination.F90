@@ -5,32 +5,52 @@ program test_assert_subroutine_error_termination
   
   integer exit_status
 
+  ! TODO: add '--profile release' if used in the 'fpm test' invocation that causes the program
+  ! ../example/test-assert-subroutine-error-termination.F90 to excute this example program.
+
   print *
   print *,"The assert subroutine"
   call execute_command_line( &
-    command = "fpm run --example intentionally_false_assertions > /dev/null 2>&1", &
+#ifdef __GFORTRAN__
+    command = "fpm run --example false_assertion > /dev/null 2>&1", &
+#elif NAGFOR
+    command = "fpm run --example false_assertion --compiler nagfor --flag -fpp > /dev/null 2>&1", &
+#elif __flang__
+    command = "./test/run-false-assertion.sh | fpm run --example check-exit-status", &
+#elif __INTEL_COMPILER
+    command = "fpm run --example false_assertion --compiler ifx --flag -O3 > /dev/null 2>&1", &
+#elif __CRAYFTN
+    command = "fpm run --example false_assertion --compiler crayftn.sh > /dev/null 2>&1", &
+#else
+    command = "echo 'example/false_assertion.F90: unsupported compiler' && exit 1", &
+#endif
     wait = .true., &
     exitstat = exit_status &
   )
     
+#ifndef __flang__
   block
     logical error_termination
 
     error_termination = exit_status /=0
-#ifndef __flang__
     call co_all(error_termination)
-
     if (this_image()==1) then
-#endif
       if (error_termination) then
         print *,"  passes on error-terminating when assertion = .false."
       else 
         print *,"  FAILS to error-terminate when assertion = .false. (Yikes! Who designed this OS?)"
       end if
-#ifndef __flang__
     end if
-#endif
   end block
+#else
+    block
+      integer unit
+      open(newunit=unit, file="build/exit_status", status="old")
+      read(unit,*) exit_status
+      print *,trim(merge("passes","FAILS ",exit_status/=0)) // " on error-terminating when assertion = .false."
+      close(unit)
+    end block 
+#endif
 
 contains
 

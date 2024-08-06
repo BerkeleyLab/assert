@@ -1,4 +1,4 @@
-program intentionally_false_assertions
+program false_assertion
   use assert_m, only : assert
   implicit none
 
