@@ -1,0 +1,70 @@
+program test_assert_subroutine_error_termination
+  !! Test "assert" subroutine calls that are intended to error terminate
+  use assert_m, only : assert
+  implicit none
+  
+  integer exit_status
+
+  ! TODO: add '--profile release' if used in the 'fpm test' invocation that causes the program
+  ! ../example/test-assert-subroutine-error-termination.F90 to excute this example program.
+
+  print *
+  print *,"The assert subroutine"
+  call execute_command_line( &
+#ifdef __GFORTRAN__
+    command = "fpm run --example false_assertion > /dev/null 2>&1", &
+#elif NAGFOR
+    command = "fpm run --example false_assertion --compiler nagfor --flag -fpp > /dev/null 2>&1", &
+#elif __flang__
+    command = "./test/run-false-assertion.sh | fpm run --example check-exit-status", &
+#elif __INTEL_COMPILER
+    command = "fpm run --example false_assertion --compiler ifx --flag -O3 > /dev/null 2>&1", &
+#elif __CRAYFTN
+    command = "fpm run --example false_assertion --compiler crayftn.sh > /dev/null 2>&1", &
+#else
+    command = "echo 'example/false_assertion.F90: unsupported compiler' && exit 1", &
+#endif
+    wait = .true., &
+    exitstat = exit_status &
+  )
+    
+#ifndef __flang__
+  block
+    logical error_termination
+
+    error_termination = exit_status /=0
+    call co_all(error_termination)
+    if (this_image()==1) then
+      if (error_termination) then
+        print *,"  passes on error-terminating when assertion = .false."
+      else 
+        print *,"  FAILS to error-terminate when assertion = .false. (Yikes! Who designed this OS?)"
+      end if
+    end if
+  end block
+#else
+    block
+      integer unit
+      open(newunit=unit, file="build/exit_status", status="old")
+      read(unit,*) exit_status
+      print *,trim(merge("passes","FAILS ",exit_status/=0)) // " on error-terminating when assertion = .false."
+      close(unit)
+    end block 
+#endif
+
+contains
+
+  pure function and_operation(lhs,rhs) result(lhs_and_rhs)
+    logical, intent(in) :: lhs, rhs
+    logical lhs_and_rhs
+    lhs_and_rhs = lhs .and. rhs
+  end function
+
+#ifndef __flang__
+  subroutine co_all(boolean)
+    logical, intent(inout) :: boolean
+    call co_reduce(boolean, and_operation)
+  end subroutine
+#endif
+
+end program test_assert_subroutine_error_termination
