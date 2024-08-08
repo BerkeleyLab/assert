@@ -1,4 +1,4 @@
-#include "../src/assert/assert_macros.h"
+#include "assert_macros.h"
 
 program invoke_via_macro
   !! Demonstrate how to invoke the 'assert' subroutine using a preprocessor macro that facilitates

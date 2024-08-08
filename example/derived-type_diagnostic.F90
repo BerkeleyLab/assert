@@ -25,10 +25,10 @@ module stuff_m
       complex self_z
     end function
 
-    pure module function defined(self)
+    pure module function defined(self) result(self_defined)
       !! Result is true if the object has been marked as user-defined.
       class(stuff_t), intent(in) :: self
-      logical defined
+      logical self_defined
     end function
 
   end interface
@@ -41,14 +41,10 @@ module stuff_m
     end function
   end interface
 
-end module
-
-submodule(stuff_m) stuff_s
-  implicit none
 contains
 
   module procedure defined
-    defined = self%defined_
+    self_defined = self%defined_
   end procedure
 
   module procedure construct
@@ -62,7 +58,7 @@ contains
     self_z = self%z_
   end procedure
 
-end submodule
+end module
 
 module characterizable_stuff_m
   !! Demonstrate a pattern for getting derived-type diagnostic data output from a type that
@@ -105,10 +101,6 @@ module characterizable_stuff_m
 
   end interface
   
-end module 
-
-submodule(characterizable_stuff_m) characterizable_stuff_s
-  implicit none
 contains
 
   module procedure as_character
@@ -122,7 +114,7 @@ contains
     new_characterizable_stuff%stuff_ = stuff
   end procedure
 
-end submodule
+end module
 
 program diagnostic_data_pattern
   !! Demonstrate 
