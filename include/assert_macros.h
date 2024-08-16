@@ -1,3 +1,11 @@
+! assert_macros.h: provides preprocessor-based assertion macros
+! that are guaranteed to compile away statically when disabled.
+
+! Enable repeated includes to toggle assertions based on current settings:
+#undef call_assert
+#undef call_assert_describe
+#undef call_assert_diagnose
+
 #ifdef DEBUG
 # define call_assert(assertion) call assert(assertion, "No description provided (see file " // __FILE__ // ", line " // string(__LINE__) // ")")
 # define call_assert_describe(assertion, description) call assert(assertion, description // " in file " // __FILE__ // ", line " // string(__LINE__) // ": " )
