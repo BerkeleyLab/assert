@@ -28,10 +28,6 @@ The `characterizable_t` type defines an `as_character()` deferred binding that p
 
 The `intrinsic_array_t` type that extends `characterizable_t` provides a convenient mechanism for producing diagnostic output from arrays of intrinsic type `complex`, `integer`, `logical`, or `real`.
 
-Documentation
--------------
-See [Assert's GitHub Pages site] for HTML documentation generated with [`ford`].
-
 Use Cases
 ---------
 Two common use cases include
@@ -117,6 +113,9 @@ See the [./example](./example) subdirectory.
 
 Documentation
 -------------
+
+See [Assert's GitHub Pages site] for HTML documentation generated with [`ford`].
+
 For further documentation, please see [example/README.md] and the [tests].  Also, the code in [src] has comments formatted for generating HTML documentation using [FORD].
 
 [Hyperlinks]:#
