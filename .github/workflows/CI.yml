@@ -30,4 +30,4 @@ jobs:
 
     - name: Build and Test
       run: |
-        fpm test
+        fpm test --profile release --flag -ffree-line-length-0
