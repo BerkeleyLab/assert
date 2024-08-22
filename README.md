@@ -145,7 +145,7 @@ limit. This can result in compile-time errors like the following from gfortran:
 Error: Line truncated at (1) [-Werror=line-truncation]
 ```
 
-Some compilers offer a command-line argument that can be used to workaround this annoying limit, eg:
+Some compilers offer a command-line argument that can be used to workaround this legacy limit, eg:
 
 * `gfortran -ffree-line-length-0` aka `gfortran -ffree-line-length-none`
 
@@ -180,7 +180,7 @@ Instead when breaking long lines in a macro invocation, just break the line (no
 continuation character!), eg:
 
 ```fortran
-! When breaking a lines in a macro invocation, just use new-line!
+! When breaking a lines in a macro invocation, just use new-line with no `&` continuation character:
 call_assert_diagnose( computed_checksum == expected_checksum,
                       "Checksum mismatch failure!",
                       expected_checksum )                  
@@ -188,7 +188,7 @@ call_assert_diagnose( computed_checksum == expected_checksum,
 
 #### Comments in macro invocations
 
-The Fortran language sadly does not support comments with an end delimiter,
+Fortran does not support comments with an end delimiter,
 only to-end-of-line comments.  As such, there is no way to safely insert a
 Fortran comment into the middle of a macro invocation.  For example, the
 following seemingly reasonable code results in a syntax error
