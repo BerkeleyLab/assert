@@ -221,6 +221,10 @@ call_assert_diagnose( computed_checksum == expected_checksum,
                       computed_checksum ) ! TODO: write a better message above
 ```                      
 
+Legal Information
+-----------------
+See the [LICENSE](LICENSE) file for copyright and licensing information.
+
 [Hyperlinks]:#
 [OpenCoarrays]: https://github.com/sourceryinstitute/opencoarrays
 [Enforcing programming contracts]: #enforcing-programming-contracts
