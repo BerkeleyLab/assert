@@ -50,7 +50,7 @@ Downloading, Building, and Running Examples
 
 ### Downloading Assert
 ```
-git clone git@github.com:sourceryinstitute/assert
+git clone git@github.com:berkeleylab/assert
 cd assert
 ```
 
@@ -235,5 +235,5 @@ See the [LICENSE](LICENSE) file for copyright and licensing information.
 [FORD]: https://github.com/Fortran-FOSS-Programmers/ford
 [Fortran Package Manager]: https://github.com/fortran-lang/fpm
 [OCL]: https://en.wikipedia.org/wiki/Object_Constraint_Language
-[Assert's GitHub Pages site]: https://sourceryinstitute.github.io/assert/
+[Assert's GitHub Pages site]: https://berkeleylab.github.io/assert/
 [`ford`]: https://github.com/Fortran-FOSS-Programmers/ford
