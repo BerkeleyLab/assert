@@ -197,9 +197,9 @@ Instead when breaking long lines in a macro invocation, just break the line (no
 continuation character!), eg:
 
 ```fortran
-! When breaking a lines in a macro invocation, just use new-line with no `&` continuation character:
-call_assert_diagnose( computed_checksum == expected_checksum,
-                      "Checksum mismatch failure!",
+! When breaking a lines in a macro invocation, use backslash `\` continuation character:
+call_assert_diagnose( computed_checksum == expected_checksum, \
+                      "Checksum mismatch failure!", \
                       expected_checksum )                  
 ```
 
@@ -223,8 +223,8 @@ comment (because they are removed by the preprocessor), for example with
 gfortran one can instead write the following:
 
 ```fortran
-call_assert_diagnose( computed_checksum == expected_checksum, /* ensured since version 3.14 */
-                      "Checksum mismatch failure!",           /* TODO: write a better message here */
+call_assert_diagnose( computed_checksum == expected_checksum, /* ensured since version 3.14 */ \
+                      "Checksum mismatch failure!",           /* TODO: write a better message here */ \
                       computed_checksum )
 ```
 
@@ -233,8 +233,8 @@ When in doubt, one can always move the comment outside the macro invocation:
 
 ```fortran
 ! assert a property ensured since version 3.14
-call_assert_diagnose( computed_checksum == expected_checksum, 
-                      "Checksum mismatch failure!",           
+call_assert_diagnose( computed_checksum == expected_checksum, \
+                      "Checksum mismatch failure!",           \
                       computed_checksum ) ! TODO: write a better message above
 ```                      
 
