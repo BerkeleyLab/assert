@@ -11,7 +11,7 @@
 #define ASSERTIONS 0
 #endif
 
-! Deal with Fortran's stringification debacle:
+! Deal with stringification issues:
 ! https://gcc.gnu.org/legacy-ml/fortran/2009-06/msg00131.html
 #ifndef STRINGIFY
 # ifdef __GFORTRAN__
