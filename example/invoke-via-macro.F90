@@ -28,6 +28,8 @@ program invoke_via_macro
     print *,'Here comes the expected assertion failure:'
     print *
 #endif
+  !call_assert(1+1>2)
+  !call_assert_describe(1+1>2, "Mathematics is broken!")
   call_assert_diagnose(1+1>2,  "example with array diagnostic data" , intrinsic_array_t([1,1,2])) ! false assertion
 
 end program invoke_via_macro
