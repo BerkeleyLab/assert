@@ -23,8 +23,8 @@ jobs:
 
     - name: Build Developer Documentation
       run: |
+        ford -I include doc-generator.md > ford_output.txt
         # Turn warnings into errors
-        ford doc-generator.md > ford_output.txt
         cat ford_output.txt; if grep -q -i Warning ford_output.txt; then exit 1; fi
         cp ./README.md ./doc/html
 
