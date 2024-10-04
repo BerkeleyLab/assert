@@ -197,7 +197,7 @@ Instead when breaking long lines in a macro invocation, just break the line (no
 continuation character!), eg:
 
 ```fortran
-! When breaking a lines in a macro invocation, use backslash `\` continuation character:
+! When breaking a line in a macro invocation, use backslash `\` continuation character:
 call_assert_diagnose( computed_checksum == expected_checksum, \
                       "Checksum mismatch failure!", \
                       expected_checksum )                  
