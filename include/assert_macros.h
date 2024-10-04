@@ -11,10 +11,20 @@
 #define ASSERTIONS 0
 #endif
 
+! Deal with Fortran's stringification debacle:
+! https://gcc.gnu.org/legacy-ml/fortran/2009-06/msg00131.html
+#ifndef STRINGIFY
+# ifdef __GFORTRAN__
+#  define STRINGIFY(x) "x"
+# else
+#  define STRINGIFY(x) #x
+# endif
+#endif
+
 #if ASSERTIONS
-# define call_assert(assertion) call assert(assertion, "No description provided (see file " // __FILE__ // ", line " // string(__LINE__) // ")")
-# define call_assert_describe(assertion, description) call assert(assertion, description // " in file " // __FILE__ // ", line " // string(__LINE__) // ": " )
-# define call_assert_diagnose(assertion, description, diagnostic_data) call assert(assertion, "file " // __FILE__ // ", line " // string(__LINE__) // ": " // description, diagnostic_data)
+# define call_assert(assertion) call assert(assertion, "call_assert(" // STRINGIFY(assertion) // ") in file " // __FILE__ // ", line " // string(__LINE__))
+# define call_assert_describe(assertion, description) call assert(assertion, description // " in file " // __FILE__ // ", line " // string(__LINE__))
+# define call_assert_diagnose(assertion, description, diagnostic_data) call assert(assertion, description // " in file " // __FILE__ // ", line " // string(__LINE__), diagnostic_data)
 #else
 # define call_assert(assertion)
 # define call_assert_describe(assertion, description)
