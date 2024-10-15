@@ -43,9 +43,12 @@ module stuff_m
 
 contains
 
-  module procedure defined
+  pure module function defined(self) result(self_defined)
+    class(stuff_t), intent(in) :: self
+    logical self_defined
+
     self_defined = self%defined_
-  end procedure
+  end function
 
   module procedure construct
     new_stuff_t%z_ = z
@@ -103,12 +106,15 @@ module characterizable_stuff_m
   
 contains
 
-  module procedure as_character
+  pure module function as_character(self) result(character_self)
+      class(characterizable_stuff_t), intent(in) :: self
+      character(len=:), allocatable :: character_self
+
     integer, parameter :: max_len=256
     character(len=max_len) untrimmed_string
     write(untrimmed_string,*) self%stuff_%z()
     character_self = trim(adjustl(untrimmed_string))
-  end procedure
+  end function
 
   module procedure construct
     new_characterizable_stuff%stuff_ = stuff
