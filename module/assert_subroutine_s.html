@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title="20.5% of total for modules and submodules.">57 statements</a>
+    title="20.9% of total for modules and submodules.">60 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/assert_subroutine_s.F90"> Source File</a></li>
   </ul>
@@ -117,6 +117,7 @@
   <div id="modprocs-0" class="panel-collapse collapse">
     <div class="list-group">
       <a class="list-group-item" href="../module/assert_subroutine_s.html#proc-assert">assert</a>
+      <a class="list-group-item" href="../module/assert_subroutine_s.html#proc-assert_always">assert_always</a>
     </div>
   </div>
 </div>
@@ -246,6 +247,7 @@
   <div id="modprocs-1" class="panel-collapse collapse">
     <div class="list-group">
       <a class="list-group-item" href="../module/assert_subroutine_s.html#proc-assert">assert</a>
+      <a class="list-group-item" href="../module/assert_subroutine_s.html#proc-assert_always">assert_always</a>
     </div>
   </div>
 </div>
@@ -291,6 +293,39 @@
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
   <td><strong>diagnostic_data</strong></td><td><p>Data to include in an error ouptput: may be of an intrinsic type or a type that extends characterizable_t</p></td>
+</tr>
+</tbody>
+</table>
+
+
+  </div>
+  </div>
+
+          <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="proc-assert_always"></span><h3>module procedure <a href='../proc/assert_always.html'>assert_always</a> <small>pure module module subroutine assert_always(assertion, description, diagnostic_data)</small>   <a href='../interface/assert_always.html'><button type="button" class="btn btn-info depwarn">Interface &rarr;</button></a>
+</h3></div>
+  <div class="panel-body">
+           
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>assertion</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>description</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>class(*),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>diagnostic_data</strong></td><td></td>
 </tr>
 </tbody>
 </table>

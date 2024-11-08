@@ -88,7 +88,7 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 5.0% of total for modules and submodules.">14 statements</a>
+    title=" 7.0% of total for modules and submodules.">20 statements</a>
      </li> 
     <li><i class="fa fa-code"></i><a href="../src/assert_subroutine_m.F90"> Source File</a></li>
   </ul>
@@ -125,6 +125,7 @@
   <div id="inters-0" class="panel-collapse collapse">
     <div class="list-group">
       <a class="list-group-item" href="../module/assert_subroutine_m.html#interface-assert">assert</a>
+      <a class="list-group-item" href="../module/assert_subroutine_m.html#interface-assert_always">assert_always</a>
     </div>
   </div>
 </div>
@@ -305,6 +306,7 @@ that building as follows enables assertion enforcement: </p>
   <div id="inters-1" class="panel-collapse collapse">
     <div class="list-group">
       <a class="list-group-item" href="../module/assert_subroutine_m.html#interface-assert">assert</a>
+      <a class="list-group-item" href="../module/assert_subroutine_m.html#interface-assert_always">assert_always</a>
     </div>
   </div>
 </div>
@@ -337,7 +339,8 @@ that building as follows enables assertion enforcement: </p>
   <ul class="list-group">
     <li class="list-group-item">
     <h3>public pure module module subroutine assert(assertion, description, diagnostic_data)   <a href='../proc/assert.html'><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
-</h3><p>If assertion is .false., error-terminate with a character stop code that contains diagnostic_data if present</p>
+</h3><p>If assertion is .false. and enforcement is enabled (e.g. via -DASSERTIONS=1), 
+then error-terminate with a character stop code that contains diagnostic_data if present</p>
     
 <h4>Arguments</h4>      <table class="table table-striped varlist">
 <thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
@@ -359,6 +362,42 @@ that building as follows enables assertion enforcement: </p>
 <td>intent(in),</td>
   <td>optional</td>  <td></td><td>::</td>
   <td><strong>diagnostic_data</strong></td><td><p>Data to include in an error ouptput: may be of an intrinsic type or a type that extends characterizable_t</p></td>
+</tr>
+</tbody>
+</table>
+
+
+    </li>
+  </ul>
+</div>
+
+     <div class="panel panel-default">
+  <div class="panel-heading codesum"><span class="anchor" id="interface-assert_always"></span><h3>interface   </h3></div>
+  <ul class="list-group">
+    <li class="list-group-item">
+    <h3>public pure module module subroutine assert_always(assertion, description, diagnostic_data)   <a href='../proc/assert_always.html'><button type="button" class="btn btn-info depwarn">Implementation &rarr;</button></a>
+</h3><p>Same as above but always enforces the assertion (regardless of 0)</p>
+    
+<h4>Arguments</h4>      <table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Intent</th><th>Optional</th><th>Attributes</th><th></th><th>Name</th><th></th></thead>
+<tbody>
+<tr>
+  <td><span class="anchor" ></span>logical,</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>assertion</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>character(len=*),</td>
+<td>intent(in)</td>
+  <td></td>  <td></td><td>::</td>
+  <td><strong>description</strong></td><td></td>
+</tr>
+<tr>
+  <td><span class="anchor" ></span>class(*),</td>
+<td>intent(in),</td>
+  <td>optional</td>  <td></td><td>::</td>
+  <td><strong>diagnostic_data</strong></td><td></td>
 </tr>
 </tbody>
 </table>
