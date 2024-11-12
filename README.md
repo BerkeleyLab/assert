@@ -92,9 +92,16 @@ fpm test --compiler=nagfor --profile release --flag "-coarray=cosmp -fpp -f2018"
 ```
 
 ### Building and testing with the Intel `ifx` compiler
+#### Single-image (serial) execution
 ```
-fpm test --compiler ifx --profile release --flag -coarray
+fpm test --compiler ifx --profile release 
 ```
+#### Multi-image (parallel) execution 
+With Intel Fortran and Intel MPI installed,
+```
+fpm test --compiler ifx --profile release --flag "-coarray -DASSERT_MULTI_IMAGE"
+```
+
 ### Building and testing with the LLVM `flang-new` compiler
 ```
 fpm test --compiler flang-new --flag "-mmlir -allow-assumed-rank -O3"
