@@ -1,3 +1,5 @@
+#include "assert_features.h"
+
 program test_assert_subroutine_error_termination
   !! Test "assert" subroutine calls that are intended to error terminate
   use assert_m, only : assert
@@ -21,7 +23,7 @@ program test_assert_subroutine_error_termination
 #elif __flang__
     command = "./test/run-false-assertion.sh | fpm run --example check-exit-status", &
 #elif __INTEL_COMPILER
-    command = "fpm run --example false-assertion --compiler ifx --flag '-DASSERTIONS -O3' > /dev/null 2>&1", &
+    command = "./test/run-false-assertion-intel.sh | fpm run --example check-exit-status", &
 #elif _CRAYFTN
     command = "fpm run --example false-assertion --profile release --compiler crayftn.sh --flag '-DASSERTIONS' > /dev/null 2>&1", &
 #else
@@ -31,7 +33,7 @@ program test_assert_subroutine_error_termination
     exitstat = exit_status &
   )
     
-#ifndef __flang__
+#if ASSERT_MULTI_IMAGE
   block
     logical error_termination
 
@@ -63,7 +65,7 @@ contains
     lhs_and_rhs = lhs .and. rhs
   end function
 
-#ifndef __flang__
+#if ASSERT_MULTI_IMAGE
   subroutine co_all(boolean)
     logical, intent(inout) :: boolean
     call co_reduce(boolean, and_operation)
