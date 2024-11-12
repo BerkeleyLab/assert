@@ -4,6 +4,9 @@
 !     "Multi-Dimensional Physics Implementation into Fuel Analysis under Steady-state and Transients (FAST)",
 !     contract # NRC-HQ-60-17-C-0007
 !
+
+#include "assert_features.h"
+
 submodule(assert_subroutine_m) assert_subroutine_s
   implicit none
 
@@ -26,7 +29,7 @@ contains
       check_assertion: &
       if (.not. assertion) then
 
-#ifndef __flang__
+#if ASSERT_MULTI_IMAGE
         associate(me=>this_image()) ! work around gfortran bug
           header = 'Assertion "' // description // '" failed on image ' // string(me)
         end associate
