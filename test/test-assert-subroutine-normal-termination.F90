@@ -1,3 +1,5 @@
+#include "assert_features.h"
+
 program test_assert_subroutine_normal_termination
   !! Test direct calls to the "assert" subroutine that don't error-terminate
   use assert_m, only : assert
@@ -12,7 +14,7 @@ program test_assert_subroutine_normal_termination
   call assert(            .true.,               "1 keyword argument  ", diagnostic_data=0)
   call assert(            .true.,               "0 keyword arguments ",                 0)
   call assert(            .true.,               "no optional argument"                   )
-#ifndef __flang__
+#if ASSERT_MULTI_IMAGE
     sync all
     if (this_image()==1) &
 #endif
@@ -30,7 +32,7 @@ program test_assert_subroutine_normal_termination
     call assert(all(integer_1D      < 3 ), "all(int_array          < 3 )", intrinsic_array_t(integer_1D))
     call assert(all(logical_1D          ), "all(logical_array          )", intrinsic_array_t(logical_1D))
     call assert(all(real_1D         < 3.), "all(real_array         < 3.)", intrinsic_array_t(   real_1D))
-#ifndef __flang__
+#if ASSERT_MULTI_IMAGE
     sync all
     if (this_image()==1) &
 #endif
