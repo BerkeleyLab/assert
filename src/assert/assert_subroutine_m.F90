@@ -35,6 +35,28 @@ module assert_subroutine_m
   private
   public :: assert, assert_always
 
+#if ASSERT_PARALLEL_CALLBACKS
+    public :: assert_this_image_interface, assert_this_image
+    public :: assert_error_stop_interface, assert_error_stop
+
+    abstract interface
+      pure function assert_this_image_interface() result(this_image_id)
+        implicit none
+        integer :: this_image_id
+      end function
+    end interface
+    procedure(assert_this_image_interface), pointer :: assert_this_image
+    
+    abstract interface
+      pure subroutine assert_error_stop_interface(stop_code_char)
+        implicit none
+        character(len=*), intent(in) :: stop_code_char
+      end subroutine
+    end interface
+    procedure(assert_error_stop_interface), pointer :: assert_error_stop
+
+#endif
+
 #ifndef USE_ASSERTIONS
 #  if ASSERTIONS
 #    define USE_ASSERTIONS .true.
