@@ -103,8 +103,13 @@ fpm test --compiler ifx --profile release --flag "-coarray -DASSERT_MULTI_IMAGE"
 ```
 
 ### Building and testing with the LLVM `flang-new` compiler
+#### LLVM 19 Version
 ```
 fpm test --compiler flang-new --flag "-mmlir -allow-assumed-rank -O3"
+```
+#### LLVM 20 or later
+```
+fpm test --compiler flang-new --flag "-O3"
 ```
 
 ### Building and testing with the Numerical Algorithms Group (NAG) compiler
