@@ -5,7 +5,10 @@ on: [push, pull_request]
 
 jobs:
   gfortran12-build:
-    runs-on: [ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-13, ubuntu-22.04, ubuntu-24.04]
 
     env:
       GCC_V: 12
@@ -34,21 +37,26 @@ jobs:
         set -x
         echo == TOOL VERSIONS ==
         uname -a
-        cat /etc/os-release
+        if test -r /etc/os-release ; then cat /etc/os-release ; fi
         ${FPM_FC} --version
         fpm --version
 
     - name: Build and Test (Assertions OFF)
       env: 
-        FC_FLAGS: ${EXTRA_FLAGS}
+        FPM_FLAGS:  --profile release --flag ${{ env.EXTRA_FLAGS }}
       run: |
         set -x
-        fpm test --verbose --profile release --flag "${FC_FLAGS}"
+        fpm test --verbose ${FPM_FLAGS}
+        fpm run --verbose --example false-assertion ${FPM_FLAGS}
+        fpm run --verbose --example invoke-via-macro ${FPM_FLAGS}
 
     - name: Build and Test (Assertions ON)
       env: 
-        FC_FLAGS: ${EXTRA_FLAGS} -DASSERTIONS
+        FPM_FLAGS:  --profile release --flag ${{ env.EXTRA_FLAGS }} --flag -DASSERTIONS
       run: |
         set -x
-        fpm test --verbose --profile release --flag "${FC_FLAGS}"
+        fpm test --verbose ${FPM_FLAGS}
+        ( set +e ; fpm run --verbose --example false-assertion ${FPM_FLAGS} ; test $? = 1 )
+        ( set +e ; fpm run --verbose --example invoke-via-macro ${FPM_FLAGS} ; test $? = 1 )
+
 
