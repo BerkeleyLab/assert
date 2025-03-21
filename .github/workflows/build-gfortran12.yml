@@ -1,15 +1,16 @@
-name: CI
+name: Build with gfortran12
 
 on: [push, pull_request]
 
 
 jobs:
-  Build:
+  gfortran12-build:
     runs-on: [ubuntu-22.04]
 
     env:
-      FC: gfortran
       GCC_V: 12
+      FPM_FC: gfortran-12
+      EXTRA_FLAGS: -ffree-line-length-0
 
     steps:
     - name: Checkout code
@@ -28,6 +29,26 @@ jobs:
         --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${GCC_V} \
         --slave /usr/bin/gcov gcov /usr/bin/gcov-${GCC_V}
 
-    - name: Build and Test
+    - name: Version info
       run: |
-        fpm test --profile release --flag -ffree-line-length-0
+        set -x
+        echo == TOOL VERSIONS ==
+        uname -a
+        cat /etc/os-release
+        ${FPM_FC} --version
+        fpm --version
+
+    - name: Build and Test (Assertions OFF)
+      env: 
+        FC_FLAGS: ${EXTRA_FLAGS}
+      run: |
+        set -x
+        fpm test --verbose --profile release --flag "${FC_FLAGS}"
+
+    - name: Build and Test (Assertions ON)
+      env: 
+        FC_FLAGS: ${EXTRA_FLAGS} -DASSERTIONS
+      run: |
+        set -x
+        fpm test --verbose --profile release --flag "${FC_FLAGS}"
+
