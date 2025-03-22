@@ -1,18 +1,26 @@
-name: Build with gfortran12
+name: Build with gfortran
 
 on: [push, pull_request]
 
 
 jobs:
-  gfortran12-build:
+  gfortran-build:
+    name: gfortran-${{ matrix.gcc_version }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-13, ubuntu-22.04, ubuntu-24.04]
+        gcc_version: [ 12, 13, 14 ]
+        exclude:
+          - os: ubuntu-22.04
+            gcc_version: 13 # no package available
+          - os: ubuntu-22.04
+            gcc_version: 14 # no package available
 
     env:
-      GCC_V: 12
-      FPM_FC: gfortran-12
+      GCC_V: ${{ matrix.gcc_version }}
+      FPM_FC: gfortran-${{ matrix.gcc_version }}
       EXTRA_FLAGS: -ffree-line-length-0
 
     steps:
@@ -24,9 +32,10 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Install Dependencies Ubuntu
-      if: contains(matrix.os, 'ubuntu')
+      if: contains(matrix.os, 'ubuntu') && 0
       run: |
         sudo apt-get update
+        sudo apt list -a 'gfortran-*'
         sudo apt install -y gfortran-${GCC_V} build-essential
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_V} 100 \
         --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${GCC_V} \
