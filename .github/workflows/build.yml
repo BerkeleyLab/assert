@@ -1,27 +1,38 @@
-name: Build with gfortran
+name: Build
 
 on: [push, pull_request]
 
 
 jobs:
-  gfortran-build:
-    name: gfortran-${{ matrix.gcc_version }} (${{ matrix.os }})
+  build:
+    name: ${{ matrix.compiler }}-${{ matrix.version }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-13, ubuntu-22.04, ubuntu-24.04]
-        gcc_version: [ 12, 13, 14 ]
+        compiler: [ gfortran ]
+        version: [ 12, 13, 14 ]
+        extra_flags: [ -ffree-line-length-0 ]
+        include:
+          - os: ubuntu-24.04
+            compiler: flang
+            version: new
+            container: gmao/llvm-flang:latest
+            extra_flags: -g
         exclude:
           - os: ubuntu-22.04
-            gcc_version: 13 # no package available
+            version: 13 # no package available
           - os: ubuntu-22.04
-            gcc_version: 14 # no package available
+            version: 14 # no package available
+
+    container:
+      image: ${{ matrix.container }}
 
     env:
-      GCC_V: ${{ matrix.gcc_version }}
-      FPM_FC: gfortran-${{ matrix.gcc_version }}
-      EXTRA_FLAGS: -ffree-line-length-0
+      GCC_V: ${{ matrix.version }}
+      FPM_FC: ${{ matrix.compiler }}-${{ matrix.version }}
+      EXTRA_FLAGS: ${{ matrix.extra_flags }}
 
     steps:
     - name: Checkout code
