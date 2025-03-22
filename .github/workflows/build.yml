@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13, ubuntu-22.04, ubuntu-24.04]
+        os: [macos-13, macos-14, ubuntu-22.04, ubuntu-24.04]
         compiler: [ gfortran ]
         version: [ 12, 13, 14 ]
         extra_flags: [ -ffree-line-length-0 ]
@@ -38,10 +38,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - uses: fortran-lang/setup-fpm@main
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Install Dependencies Ubuntu
       if: contains(matrix.os, 'ubuntu') && 0
       run: |
@@ -51,6 +47,20 @@ jobs:
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_V} 100 \
         --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${GCC_V} \
         --slave /usr/bin/gcov gcov /usr/bin/gcov-${GCC_V}
+
+    - uses: fortran-lang/setup-fpm@main
+      if: ${{ matrix.os != 'macos-14' }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build FPM
+      if: ${{ matrix.os == 'macos-14' }} # no arm64 fpm distro, build from source
+      run: |
+        set -x
+        curl --retry 5 -LOsS https://github.com/fortran-lang/fpm/releases/download/v0.11.0/fpm-0.11.0.F90
+        mkdir fpm-temp
+        gfortran-14 -o fpm-temp/fpm fpm-0.11.0.F90
+        echo "PATH=`pwd`/fpm-temp:${PATH}" >> "$GITHUB_ENV"
 
     - name: Version info
       run: |
