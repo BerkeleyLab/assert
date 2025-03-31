@@ -21,7 +21,7 @@ program test_assert_subroutine_error_termination
 #elif NAGFOR
     command = "fpm run --example false-assertion --compiler nagfor --flag '-DASSERTIONS -fpp' > /dev/null 2>&1", &
 #elif __flang__
-    command = "./test/run-false-assertion.sh | fpm run --example check-exit-status", &
+    command = "./test/run-false-assertion.sh", &
 #elif __INTEL_COMPILER
     command = "./test/run-false-assertion-intel.sh | fpm run --example check-exit-status", &
 #elif _CRAYFTN
