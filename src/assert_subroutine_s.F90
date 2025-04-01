@@ -24,7 +24,7 @@ contains
   module procedure assert_always
     use characterizable_m, only : characterizable_t
 
-    character(len=:), allocatable :: header, trailer
+    character(len=:), allocatable :: header, trailer, message
     integer :: me
 
       check_assertion: &
@@ -39,6 +39,7 @@ contains
         header = 'Assertion "' // description // '" failed on image ' // string(me)
 #else
         header = 'Assertion "' // description // '" failed.'
+        me = 0 ! avoid a harmless warning
 #endif
  
         represent_diagnostics_as_string: &
@@ -68,10 +69,12 @@ contains
 
         end if represent_diagnostics_as_string
 
+        message = header // trailer
+
 #if ASSERT_PARALLEL_CALLBACKS
-        call assert_error_stop(header // trailer)
+        call assert_error_stop(message)
 #else
-        error stop (header // trailer)
+        error stop message, QUIET=.false.
 #endif
 
       end if check_assertion
