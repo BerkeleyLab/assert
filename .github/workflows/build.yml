@@ -13,18 +13,18 @@ jobs:
         os: [macos-13, macos-14, ubuntu-22.04, ubuntu-24.04]
         compiler: [ gfortran ]
         version: [ 12, 13, 14 ]
-        extra_flags: [ '"-ffree-line-length-0"' ]
+        extra_flags: [ -ffree-line-length-0 ]
         include:
           # https://hub.docker.com/r/phhargrove/llvm-flang/tags
           - os: ubuntu-24.04
             compiler: flang
             version: 20
-            extra_flags: '"-g"'
+            extra_flags: -g
             container: phhargrove/llvm-flang:20.1.0-1
           - os: ubuntu-24.04
             compiler: flang
             version: 19
-            extra_flags: '[ "-g", "-mmlir", "-allow-assumed-rank" ]'
+            extra_flags: -g -mmlir -allow-assumed-rank
             container: phhargrove/llvm-flang:19.1.1-1
 #          - os: ubuntu-24.04
 #            compiler: flang
@@ -44,7 +44,7 @@ jobs:
     env:
       GCC_VERSION: ${{ matrix.version }}
       FC: ${{ matrix.compiler }}
-      EXTRA_FLAGS: ${{ join(fromJSON(matrix.extra_flags), ' --flag ') }}
+      FPM_FLAGS:  --profile release --verbose
 
     steps:
     - name: Checkout code
@@ -93,21 +93,19 @@ jobs:
         fpm --version
 
     - name: Build and Test (Assertions OFF)
-      env: 
-        FPM_FLAGS:  --profile release --flag ${{ env.EXTRA_FLAGS }}
       run: |
         set -x
-        fpm test --verbose ${FPM_FLAGS}
-        fpm run --verbose --example false-assertion ${FPM_FLAGS}
-        fpm run --verbose --example invoke-via-macro ${FPM_FLAGS}
+        fpm test                              ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
+        fpm run  --example false-assertion    ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
+        fpm run  --example invoke-via-macro   ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
 
     - name: Build and Test (Assertions ON)
-      env: 
-        FPM_FLAGS:  --profile release --flag ${{ env.EXTRA_FLAGS }} --flag -DASSERTIONS
+      env:
+        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS
       run: |
         set -x
-        fpm test --verbose ${FPM_FLAGS}
-        ( set +e ; fpm run --verbose --example false-assertion ${FPM_FLAGS} ; test $? = 1 )
-        ( set +e ; fpm run --verbose --example invoke-via-macro ${FPM_FLAGS} ; test $? = 1 )
+                   fpm test                            ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
+        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = 1 )
+        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = 1 )
 
 
