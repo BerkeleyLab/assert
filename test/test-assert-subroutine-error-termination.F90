@@ -23,7 +23,7 @@ program test_assert_subroutine_error_termination
 #elif __flang__
     command = "./test/run-false-assertion.sh", &
 #elif __INTEL_COMPILER
-    command = "./test/run-false-assertion-intel.sh | fpm run --example check-exit-status", &
+    command = "./test/run-false-assertion-intel.sh", &
 #elif _CRAYFTN
     command = "fpm run --example false-assertion --profile release --compiler crayftn.sh --flag '-DASSERTIONS' > /dev/null 2>&1", &
 #else
