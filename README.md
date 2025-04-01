@@ -74,14 +74,22 @@ cd assert
 
 ### Building and testing with `gfortran`
 #### Single-image (serial) execution
-The following command builds Assert and runs the full test suite in a single image:
+The command below builds Assert and runs the full test suite in a single image.
+For `gfortran` 14 or later, use
+```
+fpm test --profile release
+```
+For `gfortran` 13 or earlier, use
 ```
 fpm test --profile release --flag "-ffree-line-length-0"
 ```
-which builds the Assert library (with the default of assertion enforcement disabled) and runs the test suite.
-
+The above commands build the Assert library (with the default of assertion enforcement disabled) and runs the test suite.
 #### Multi-image (parallel) execution
-With `gfortran` and OpenCoarrays installed,
+With `gfortran` 14 or later versions and OpenCoarrays installed, use
+```
+fpm test --compiler caf --profile release --runner "cafrun -n 2"
+```
+With `gfortran` 13 or earlier versions and OpenCoarrays installed,
 ```
 fpm test --compiler caf --profile release --runner "cafrun -n 2" --flag "-ffree-line-length-0"
 ```
@@ -103,11 +111,11 @@ fpm test --compiler ifx --profile release --flag "-coarray -DASSERT_MULTI_IMAGE"
 ```
 
 ### Building and testing with the LLVM `flang-new` compiler
-#### LLVM 19 Version
+#### LLVM version 19
 ```
 fpm test --compiler flang-new --flag "-mmlir -allow-assumed-rank -O3"
 ```
-#### LLVM 20 or later
+#### LLVM version 20 or later
 ```
 fpm test --compiler flang-new --flag "-O3"
 ```
