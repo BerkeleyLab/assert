@@ -4,7 +4,8 @@ on: [push, pull_request]
 
 
 jobs:
-  Build:
+  build:
+    name: Build and Deploy Documentation
     runs-on: ubuntu-22.04
 
     env:

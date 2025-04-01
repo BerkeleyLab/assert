@@ -1,0 +1,111 @@
+name: Build
+
+on: [push, pull_request]
+
+
+jobs:
+  build:
+    name: ${{ matrix.compiler }}-${{ matrix.version }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-13, macos-14, ubuntu-22.04, ubuntu-24.04]
+        compiler: [ gfortran ]
+        version: [ 12, 13, 14 ]
+        extra_flags: [ -ffree-line-length-0 ]
+        include:
+          # https://hub.docker.com/r/phhargrove/llvm-flang/tags
+          - os: ubuntu-24.04
+            compiler: flang
+            version: 20
+            extra_flags: -g
+            container: phhargrove/llvm-flang:20.1.0-1
+          - os: ubuntu-24.04
+            compiler: flang
+            version: 19
+            extra_flags: -g -mmlir -allow-assumed-rank
+            container: phhargrove/llvm-flang:19.1.1-1
+#          - os: ubuntu-24.04
+#            compiler: flang
+#            version: new
+#            container: gmao/llvm-flang:latest
+#            extra_flags: -g
+
+        exclude:
+          - os: ubuntu-22.04
+            version: 13 # no package available
+          - os: ubuntu-22.04
+            version: 14 # no package available
+
+    container:
+      image: ${{ matrix.container }}
+
+    env:
+      GCC_VERSION: ${{ matrix.version }}
+      FC: ${{ matrix.compiler }}
+      FPM_FLAGS:  --profile release --verbose
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies Ubuntu
+      if: ${{ contains(matrix.os, 'ubuntu') && matrix.compiler == 'gfortran' && 0 }}
+      run: |
+        sudo apt-get update
+        sudo apt list -a 'gfortran-*'
+        sudo apt install -y gfortran-${GCC_VERSION} build-essential
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VERSION} 100 \
+        --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${GCC_VERSION}
+
+    - name: Setup Compilers
+      run: |
+        set -x
+        if test "$FC" = "flang" ; then \
+          echo "FPM_FC=flang-new" >> "$GITHUB_ENV" ; \
+        else \
+          echo "FPM_FC=gfortran-${GCC_VERSION}" >> "$GITHUB_ENV" ; \
+        fi
+
+    - name: Setup FPM
+      uses: fortran-lang/setup-fpm@main
+      if: ${{ matrix.os != 'macos-14' }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build FPM
+      if: ${{ matrix.os == 'macos-14' }} # no arm64 fpm distro, build from source
+      run: |
+        set -x
+        curl --retry 5 -LOsS https://github.com/fortran-lang/fpm/releases/download/v0.11.0/fpm-0.11.0.F90
+        mkdir fpm-temp
+        gfortran-14 -o fpm-temp/fpm fpm-0.11.0.F90
+        echo "PATH=`pwd`/fpm-temp:${PATH}" >> "$GITHUB_ENV"
+
+    - name: Version info
+      run: |
+        set -x
+        echo == TOOL VERSIONS ==
+        uname -a
+        if test -r /etc/os-release ; then cat /etc/os-release ; fi
+        ${FPM_FC} --version
+        fpm --version
+
+    - name: Build and Test (Assertions OFF)
+      run: |
+        set -x
+        fpm test                              ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
+        fpm run  --example false-assertion    ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
+        fpm run  --example invoke-via-macro   ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
+
+    - name: Build and Test (Assertions ON)
+      env:
+        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS
+      run: |
+        set -x
+                   fpm test                            ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
+        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = 1 )
+        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = 1 )
+
+
