@@ -31,6 +31,19 @@ jobs:
 #            version: new
 #            container: gmao/llvm-flang:latest
 #            extra_flags: -g
+          - os: ubuntu-24.04
+            compiler: ifx
+            version: 2025.1.0
+            error_stop_code: 128
+            extra_flags: -g
+            container: intel/fortran-essentials:2025.1.0-0-devel-ubuntu24.04
+            #container: intel/oneapi-hpckit:2025.1.0-0-devel-ubuntu24.04
+          - os: ubuntu-22.04
+            compiler: ifx
+            version: 2025.0.0
+            error_stop_code: 128
+            extra_flags: -g
+            container: intel/fortran-essentials:2025.0.0-0-devel-ubuntu22.04 
 
         exclude:
           - os: ubuntu-22.04
@@ -64,8 +77,15 @@ jobs:
         set -x
         if test "$FC" = "flang" ; then \
           echo "FPM_FC=flang-new" >> "$GITHUB_ENV" ; \
+        elif test "$FC" = "ifx" ; then \
+          echo "FPM_FC=ifx" >> "$GITHUB_ENV" ; \
         else \
           echo "FPM_FC=gfortran-${GCC_VERSION}" >> "$GITHUB_ENV" ; \
+        fi
+        if test -n "${{ matrix.error_stop_code }}" ; then \
+          echo "ERROR_STOP_CODE=${{ matrix.error_stop_code }}" >> "$GITHUB_ENV" ; \
+        else \
+          echo "ERROR_STOP_CODE=1" >> "$GITHUB_ENV" ; \
         fi
 
     - name: Setup FPM
@@ -105,7 +125,7 @@ jobs:
       run: |
         set -x
                    fpm test                            ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
-        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = 1 )
-        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = 1 )
+        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = $ERROR_STOP_CODE )
 
 
