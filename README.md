@@ -111,7 +111,7 @@ fpm test --compiler ifx --profile release --flag "-coarray -DASSERT_MULTI_IMAGE"
 ```
 
 ### Building and testing with the LLVM `flang-new` compiler
-#### LLVM version 19 or earlier
+#### LLVM version 19
 ```
 fpm test --compiler flang-new --flag "-mmlir -allow-assumed-rank -O3"
 ```
