@@ -23,14 +23,12 @@ program invoke_via_macro
 
   call_assert(1==1) ! true assertion
   call_assert_describe(2>0,    "example assertion invocation via macro") ! true assertion
-  call_assert_diagnose(1+1==2, "example with scalar diagnostic data", 1+1) ! true assertion
 #if ASSERTIONS
     print *
     print *,'Here comes the expected assertion failure:'
     print *
 #endif
-  !call_assert(1+1>2)
-  !call_assert_describe(1+1>2, "Mathematics is broken!")
-  call_assert_diagnose(1+1>2,  "example with array diagnostic data" , intrinsic_array_t([1,1,2])) ! false assertion
+ !call_assert(1+1>2) ! example false assertion without description
+  call_assert_describe(1+1>2, "Mathematics is broken!") ! false assertion with description
 
 end program invoke_via_macro

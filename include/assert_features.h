@@ -4,7 +4,7 @@
 ! Whether or not the assert library may use multi-image features
 ! Default is compiler-dependent
 #ifndef ASSERT_MULTI_IMAGE
-#  if defined(__flang__) || defined(__INTEL_COMPILER)
+#  if defined(__flang__) || defined(__INTEL_COMPILER) || defined(__LFORTRAN__)
 #    define ASSERT_MULTI_IMAGE 0
 #  else
 #    define ASSERT_MULTI_IMAGE 1
