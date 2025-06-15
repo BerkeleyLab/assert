@@ -68,24 +68,21 @@ module assert_subroutine_m
 
   interface
 
-    pure module subroutine assert(assertion, description, diagnostic_data)
-      !! If assertion is .false. and enforcement is enabled (e.g. via -DASSERTIONS=1), 
-      !! then error-terminate with a character stop code that contains diagnostic_data if present
+    pure module subroutine assert(assertion, description)
+      !! If assertion is .false. and enforcement is enabled (e.g. via -DASSERTIONS=1),
+      !! then error-terminate with a character stop code that contains the description argument if present
       implicit none
       logical, intent(in) :: assertion
         !! Most assertions will be expressions such as i>0
       character(len=*), intent(in) :: description
         !! A brief statement of what is being asserted such as "i>0" or "positive i"
-      class(*), intent(in), optional :: diagnostic_data
-        !! Data to include in an error ouptput: may be of an intrinsic type or a type that extends characterizable_t
     end subroutine
 
-    pure module subroutine assert_always(assertion, description, diagnostic_data)
+    pure module subroutine assert_always(assertion, description)
       !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
       implicit none
       logical, intent(in) :: assertion
       character(len=*), intent(in) :: description
-      class(*), intent(in), optional :: diagnostic_data
     end subroutine
 
   end interface

@@ -19,7 +19,6 @@ This assertion utility contains four public entities:
 
 The `assert` subroutine
 * Error-terminates with a variable stop code when a caller-provided logical assertion fails,
-* Includes user-supplied diagnostic data in the output if provided by the calling procedure,
 * Is callable inside `pure` procedures, and
 * Can be eliminated at compile-time, as controlled by the `ASSERTIONS` preprocessor define.
 
@@ -41,10 +40,6 @@ Due to a limitation of `fpm`, this approach works best if the project using Asse
 If instead `fpm install` is used, then either the user must copy `include/assert_macros.h` to the installation directory (default: `~/.local/include`) or 
 the user must invoke `assert` directly (via `call assert(...)`).
 In the latter approach when the assertions are disabled, the `assert` procedure will start and end with `if (.false.) then ... end if`, which might facilitate automatic removal of `assert` during the dead-code removal phase of optimizing compilers.
-
-The `characterizable_t` type defines an `as_character()` deferred binding that produces `character` strings for use as diagnostic output from a user-defined derived type that extends  `characterizable_t` and implements the deferred binding.
-
-The `intrinsic_array_t` type that extends `characterizable_t` provides a convenient mechanism for producing diagnostic output from arrays of intrinsic type `complex`, `integer`, `logical`, or `real`.
 
 Use Cases
 ---------
@@ -208,9 +203,9 @@ character for line-breaks in a macro invocation:
 
 ```fortran
 ! OK for flang-new and gfortran
-call_assert_diagnose( computed_checksum == expected_checksum, \
-                      "Checksum mismatch failure!", \
-                      expected_checksum )                  
+call_assert_describe( computed_checksum == expected_checksum, \
+                      "Checksum mismatch failure!" \
+                    )                  
 ```
 
 Whereas Cray Fortran wants `&` line continuation characters, even inside
@@ -218,9 +213,9 @@ a macro invocation:
 
 ```fortran
 ! OK for Cray Fortran
-call_assert_diagnose( computed_checksum == expected_checksum, &
-                      "Checksum mismatch failure!", &
-                      expected_checksum )                  
+call_assert_describe( computed_checksum == expected_checksum, &
+                      "Checksum mismatch failure!" &
+                    )                  
 ```
 
 There appears to be no syntax acceptable to all compilers, so when writing
@@ -237,9 +232,9 @@ after macro expansion (on gfortran and flang-new):
 
 ```fortran
 ! INCORRECT: cannot use Fortran comments inside macro invocation
-call_assert_diagnose( computed_checksum == expected_checksum, ! ensured since version 3.14
-                      "Checksum mismatch failure!",           ! TODO: write a better message here
-                      computed_checksum )             
+call_assert_describe( computed_checksum == expected_checksum, ! ensured since version 3.14
+                      "Checksum mismatch failure!"            ! TODO: write a better message here
+                    )             
 ```
 
 Depending on your compiler it *might* be possible to use a C-style block
@@ -247,9 +242,9 @@ comment (because they are often removed by the preprocessor), for example with
 gfortran one can instead write the following:
 
 ```fortran
-call_assert_diagnose( computed_checksum == expected_checksum, /* ensured since version 3.14 */ \
-                      "Checksum mismatch failure!",           /* TODO: write a better message here */ \
-                      computed_checksum )
+call_assert_describe( computed_checksum == expected_checksum, /* ensured since version 3.14 */ \
+                      "Checksum mismatch failure!"            /* TODO: write a better message here */ \
+                    )
 ```
 
 However that capability might not be portable to other Fortran compilers. 
@@ -257,9 +252,9 @@ When in doubt, one can always move the comment outside the macro invocation:
 
 ```fortran
 ! assert a property ensured since version 3.14
-call_assert_diagnose( computed_checksum == expected_checksum, \
-                      "Checksum mismatch failure!",           \
-                      computed_checksum ) ! TODO: write a better message above
+call_assert_describe( computed_checksum == expected_checksum, \
+                      "Checksum mismatch failure!"            \
+                    ) ! TODO: write a better message above
 ```                      
 
 Legal Information

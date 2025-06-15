@@ -4,7 +4,6 @@
 ! Enable repeated includes to toggle assertions based on current settings:
 #undef call_assert
 #undef call_assert_describe
-#undef call_assert_diagnose
 
 #ifndef ASSERTIONS
 ! Assertions are off by default
@@ -24,9 +23,7 @@
 #if ASSERTIONS
 # define call_assert(assertion) call assert_always(assertion, "call_assert(" // CPP_STRINGIFY_SOURCE(assertion) // ") in file " // __FILE__ // ", line " // fortran_stringify_integer(__LINE__))
 # define call_assert_describe(assertion, description) call assert_always(assertion, description // " in file " // __FILE__ // ", line " // fortran_stringify_integer(__LINE__))
-# define call_assert_diagnose(assertion, description, diagnostic_data) call assert_always(assertion, description // " in file " // __FILE__ // ", line " // fortran_stringify_integer(__LINE__), diagnostic_data)
 #else
 # define call_assert(assertion)
 # define call_assert_describe(assertion, description)
-# define call_assert_diagnose(assertion, description, diagnostic_data)
 #endif
