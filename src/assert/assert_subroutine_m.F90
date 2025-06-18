@@ -68,9 +68,10 @@ module assert_subroutine_m
 #endif
   logical, parameter :: enforce_assertions=USE_ASSERTIONS
 
-  interface
 
-    pure module subroutine assert(assertion, description)
+contains
+
+    pure subroutine assert(assertion, description)
       !! If assertion is .false. and enforcement is enabled (e.g. via -DASSERTIONS=1),
       !! then error-terminate with a character stop code that contains the description argument if present
       implicit none
@@ -78,29 +79,19 @@ module assert_subroutine_m
         !! Most assertions will be expressions such as i>0
       character(len=*), intent(in) :: description
         !! A brief statement of what is being asserted such as "i>0" or "positive i"
-    end subroutine
-
-    pure module subroutine assert_always(assertion, description)
-      !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
-      implicit none
-      logical, intent(in) :: assertion
-      character(len=*), intent(in) :: description
-    end subroutine
-
-  end interface
-
-contains
-
-  module procedure assert
 
     toggle_assertions: &
     if (enforce_assertions) then
         call assert_always(assertion, description)
     end if toggle_assertions
     
-  end procedure
+  end subroutine
 
-  module procedure assert_always
+    pure module subroutine assert_always(assertion, description)
+      !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
+      implicit none
+      logical, intent(in) :: assertion
+      character(len=*), intent(in) :: description
     character(len=:), allocatable :: message
     integer me
 
@@ -153,7 +144,7 @@ contains
 
     end function string
 
-  end procedure
+  end subroutine
 
 end module assert_subroutine_m
 
