@@ -13,7 +13,7 @@
 ! Deal with stringification issues:
 ! https://gcc.gnu.org/legacy-ml/fortran/2009-06/msg00131.html
 #ifndef CPP_STRINGIFY_SOURCE
-# if defined(__GFORTRAN__) || defined(_CRAYFTN) || defined(NAGFOR)
+# if defined(__GFORTRAN__) || defined(_CRAYFTN) || defined(NAGFOR) || defined(__LFORTRAN__)
 #  define CPP_STRINGIFY_SOURCE(x) "x"
 # else
 #  define CPP_STRINGIFY_SOURCE(x) #x
