@@ -7,6 +7,8 @@
 !
 #include "assert_macros.h"
 
+#include "assert_features.h"
+
 module assert_subroutine_m
   !! summary: Utility for runtime enforcement of logical assertions.
   !! usage: error-terminate if the assertion fails:
@@ -87,4 +89,71 @@ module assert_subroutine_m
 
   end interface
 
+contains
+
+  module procedure assert
+
+    toggle_assertions: &
+    if (enforce_assertions) then
+        call assert_always(assertion, description)
+    end if toggle_assertions
+    
+  end procedure
+
+  module procedure assert_always
+    character(len=:), allocatable :: message
+    integer me
+
+      check_assertion: &
+      if (.not. assertion) then
+
+#if ASSERT_MULTI_IMAGE
+#  if ASSERT_PARALLEL_CALLBACKS
+        me = assert_this_image()
+#  else
+        me = this_image()
+#  endif
+        message = 'Assertion failure on image ' // string(me) // ':' // description 
+#else
+        message = 'Assertion failure: ' // description
+        me = 0 ! avoid a harmless warning
+#endif
+ 
+#if ASSERT_PARALLEL_CALLBACKS
+        call assert_error_stop(message)
+#else
+        error stop message, QUIET=.false.
+#endif
+
+      end if check_assertion
+
+  contains
+    
+    pure function string(numeric) result(number_as_string)
+      !! Result is a string represention of the numeric argument
+      class(*), intent(in) :: numeric
+      integer, parameter :: max_len=128
+      character(len=max_len) :: untrimmed_string
+      character(len=:), allocatable :: number_as_string
+
+      select type(numeric)
+        type is(complex)
+          write(untrimmed_string, *) numeric
+        type is(integer)
+          write(untrimmed_string, *) numeric
+        type is(logical)
+          write(untrimmed_string, *) numeric
+        type is(real)
+          write(untrimmed_string, *) numeric
+        class default
+          error stop "Internal error in subroutine 'assert': unsupported type in function 'string'."
+      end select
+
+      number_as_string = trim(adjustl(untrimmed_string))
+
+    end function string
+
+  end procedure
+
 end module assert_subroutine_m
+
