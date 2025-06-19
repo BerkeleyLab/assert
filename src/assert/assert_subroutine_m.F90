@@ -7,6 +7,8 @@
 !
 #include "assert_macros.h"
 
+#include "assert_features.h"
+
 module assert_subroutine_m
   !! summary: Utility for runtime enforcement of logical assertions.
   !! usage: error-terminate if the assertion fails:
@@ -66,9 +68,10 @@ module assert_subroutine_m
 #endif
   logical, parameter :: enforce_assertions=USE_ASSERTIONS
 
-  interface
 
-    pure module subroutine assert(assertion, description)
+contains
+
+    pure subroutine assert(assertion, description)
       !! If assertion is .false. and enforcement is enabled (e.g. via -DASSERTIONS=1),
       !! then error-terminate with a character stop code that contains the description argument if present
       implicit none
@@ -76,15 +79,50 @@ module assert_subroutine_m
         !! Most assertions will be expressions such as i>0
       character(len=*), intent(in) :: description
         !! A brief statement of what is being asserted such as "i>0" or "positive i"
-    end subroutine
 
-    pure module subroutine assert_always(assertion, description)
+    toggle_assertions: &
+    if (enforce_assertions) then
+        call assert_always(assertion, description)
+    end if toggle_assertions
+    
+  end subroutine
+
+    pure subroutine assert_always(assertion, description)
       !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
       implicit none
       logical, intent(in) :: assertion
       character(len=*), intent(in) :: description
-    end subroutine
+    character(len=:), allocatable :: message
+    integer me
 
-  end interface
+      check_assertion: &
+      if (.not. assertion) then
+
+#if ASSERT_MULTI_IMAGE
+#  if ASSERT_PARALLEL_CALLBACKS
+        me = assert_this_image()
+#  else
+        me = this_image()
+#  endif
+   block
+        character(len=128) image_number
+        write(image_number, *) me
+        message = 'Assertion failure on image ' // trim(adjustl(image_number)) // ':' // description 
+   end block
+#else
+        message = 'Assertion failure: ' // description
+        me = 0 ! avoid a harmless warning
+#endif
+ 
+#if ASSERT_PARALLEL_CALLBACKS
+        call assert_error_stop(message)
+#else
+        error stop message, QUIET=.false.
+#endif
+
+      end if check_assertion
+
+  end subroutine
 
 end module assert_subroutine_m
+
