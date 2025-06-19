@@ -58,69 +58,21 @@ The requirements and assurances might be constraints of three kinds:
 
 The [example/README.md] file shows examples of writing constraints in notes on class diagrams using the formal syntax of the Object Constraint Language ([OCL]).
 
-Downloading, Building, and Running Examples
--------------------------------------------
+Running the Examples
+--------------------
+See the [./example](./example) subdirectory.
 
-### Downloading Assert
-```
-git clone git@github.com:berkeleylab/assert
-cd assert
-```
+Building and Testing
+--------------------
 
-### Building and testing with `gfortran`
-#### Single-image (serial) execution
-The command below builds Assert and runs the full test suite in a single image.
-For `gfortran` 14 or later, use
-```
-fpm test --profile release
-```
-For `gfortran` 13 or earlier, use
-```
-fpm test --profile release --flag "-ffree-line-length-0"
-```
-The above commands build the Assert library (with the default of assertion enforcement disabled) and runs the test suite.
-#### Multi-image (parallel) execution
-With `gfortran` 14 or later versions and OpenCoarrays installed, use
-```
-fpm test --compiler caf --profile release --runner "cafrun -n 2"
-```
-With `gfortran` 13 or earlier versions and OpenCoarrays installed,
-```
-fpm test --compiler caf --profile release --runner "cafrun -n 2" --flag "-ffree-line-length-0"
-```
-To build and test with the Numerical Algorithms Group (NAG) Fortran compiler version
-7.1 or later, use
-```
-fpm test --compiler=nagfor --profile release --flag "-coarray=cosmp -fpp -f2018"
-```
+- [Cray Compiler Environment (CCE) `ftn`](#cray-compiler-environment-cce-ftn)
+- [GNU Compiler Collection (GCC) `gfortran`](#gnu-compiler-collection-gcc-gfortran))
+- [Intel `ifx`](#intel-ifx))
+- [LFortran `lfortran`](#lfortran-lfortran)
+- [LLVM `flang-new`](#llvm-flang-new)
+- [Numerical Algorithms Group (NAG) `nagfor`](#numerical-algorithms-group-nag-nagfor)
 
-### Building and testing with the Intel `ifx` compiler
-#### Single-image (serial) execution
-```
-fpm test --compiler ifx --profile release 
-```
-#### Multi-image (parallel) execution 
-With Intel Fortran and Intel MPI installed,
-```
-fpm test --compiler ifx --profile release --flag "-coarray -DASSERT_MULTI_IMAGE"
-```
-
-### Building and testing with the LLVM `flang-new` compiler
-#### LLVM version 19
-```
-fpm test --compiler flang-new --flag "-mmlir -allow-assumed-rank -O3"
-```
-#### LLVM version 20 or later
-```
-fpm test --compiler flang-new --flag "-O3"
-```
-
-### Building and testing with the Numerical Algorithms Group (NAG) compiler
-```
-fpm test --compiler nagfor --profile release --flag "-fpp -coarray=cosmp"
-```
-
-### Building and testing with the Cray Compiler Environment (CCE)
+### Cray Compiler Environment (CCE) `ftn`
 Because `fpm` uses the compiler name to determine the compiler identity and because
 CCE provides one compiler wrapper, `ftn`, for invoking all compilers, you will
 need to invoke `ftn` in a shell script named to identify CCE compiler. For example,
@@ -136,12 +88,87 @@ Then build and test Assert with the command
 fpm test --compiler crayftn.sh --profile release
 ```
 
+### GNU Compiler Collection (GCC) `gfortran`
 
-### Building and testing with other compilers
-To use Assert with other compilers, please submit an issue or pull request.  
+#### Single-image (serial) execution
+With `gfortran` 14 or later, use
+```
+fpm test --profile release
+```
+With `gfortran` 13 or earlier, use
+```
+fpm test --profile release --flag "-ffree-line-length-0"
+```
+The above commands build the Assert library (with the default of assertion enforcement disabled) and runs the test suite.
 
-### Running the examples
-See the [./example](./example) subdirectory.
+#### Multi-image (parallel) execution
+With `gfortran` 14 or later versions and OpenCoarrays installed, use
+```
+fpm test --compiler caf --profile release --runner "cafrun -n 2"
+```
+With `gfortran` 13 or earlier versions and OpenCoarrays installed,
+```
+fpm test --compiler caf --profile release --runner "cafrun -n 2" --flag "-ffree-line-length-0"
+```
+
+### Intel `ifx`
+
+#### Single-image (serial) execution
+```
+fpm test --compiler ifx --profile release 
+```
+
+#### Multi-image (parallel) execution 
+With Intel Fortran and Intel MPI installed,
+```
+fpm test --compiler ifx --profile release --flag "-coarray -DASSERT_MULTI_IMAGE"
+```
+
+### LLVM `flang-new`
+
+#### Single-image (serial) execution
+With `flang-new` version 19, use
+```
+fpm test --compiler flang-new --flag "-mmlir -allow-assumed-rank -O3"
+```
+With `flang-new` version 20 or later, use
+```
+fpm test --compiler flang-new --flag "-O3"
+```
+
+#### Multi-image (parallel) execution
+With `flang-new` version 21 built from the SiPearl llvm-project fork's 
+[prif branch](https://github.com/SiPearl/llvm-project/tree/prif), use
+```
+fpm test --compiler -caffeine -L<path-to-libcaffeine> -l<gasnet-conduit> -L<path-to-libgasnet>
+```
+where, for example, `<gasnet-conduit>` might be `gasnet-smp-seq` for
+shared-memory execution.
+
+### LFortran `lfortran`
+
+#### Single-image (serial) execution
+```
+fpm test --compiler lfortran --profile release --flag --cpp
+```
+
+### Numerical Algorithms Group (NAG) `nagfor`
+
+#### Single-image (serial) execution
+With `nagfor` version 7.1 or later, use
+```
+fpm test --compiler nagfor --profile release --flag -fpp
+```
+
+#### Multi-image execution
+With `nagfor` 7.1, use
+```
+fpm test --compiler nagfor --profile release --flag "-fpp -coarray=cosmp -f2018"
+```
+With `nagfor` 7.2 or later, use
+```
+fpm test --compiler nagfor --profile release --flag -fpp
+```
 
 Documentation
 -------------
