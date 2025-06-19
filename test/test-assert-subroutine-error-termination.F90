@@ -49,13 +49,16 @@ program test_assert_subroutine_error_termination
     end if
   end block
 #else
+#ifdef __LFORTRAN__
+    print *,trim(merge("passes","FAILS ",exit_status/=0)) // " on error-terminating when assertion = .false."
+#else
     block
-      ! integer unit
-      ! open(newunit=unit, file="build/exit_status", status="old")
-      ! read(unit,*) exit_status
-      print *,trim(merge("passes","FAILS ",exit_status/=0)) // " on error-terminating when assertion = .false."
-      ! close(unit)
+      integer unit
+      open(newunit=unit, file="build/exit_status", status="old")
+      read(unit,*) exit_status
+      close(unit)
     end block 
+#endif
 #endif
 
 contains

@@ -87,7 +87,7 @@ contains
     
   end subroutine
 
-    pure module subroutine assert_always(assertion, description)
+    pure subroutine assert_always(assertion, description)
       !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
       implicit none
       logical, intent(in) :: assertion
@@ -104,7 +104,11 @@ contains
 #  else
         me = this_image()
 #  endif
-        message = 'Assertion failure on image ' // string(me) // ':' // description 
+   block
+        character(len=128) image_number
+        write(image_number, *) me
+        message = 'Assertion failure on image ' // trim(adjustl(image_number)) // ':' // description 
+   end block
 #else
         message = 'Assertion failure: ' // description
         me = 0 ! avoid a harmless warning
@@ -117,32 +121,6 @@ contains
 #endif
 
       end if check_assertion
-
-  contains
-    
-    pure function string(numeric) result(number_as_string)
-      !! Result is a string represention of the numeric argument
-      class(*), intent(in) :: numeric
-      integer, parameter :: max_len=128
-      character(len=max_len) :: untrimmed_string
-      character(len=:), allocatable :: number_as_string
-
-      select type(numeric)
-        type is(complex)
-          write(untrimmed_string, *) numeric
-        type is(integer)
-          write(untrimmed_string, *) numeric
-        type is(logical)
-          write(untrimmed_string, *) numeric
-        type is(real)
-          write(untrimmed_string, *) numeric
-        class default
-          error stop "Internal error in subroutine 'assert': unsupported type in function 'string'."
-      end select
-
-      number_as_string = trim(adjustl(untrimmed_string))
-
-    end function string
 
   end subroutine
 
