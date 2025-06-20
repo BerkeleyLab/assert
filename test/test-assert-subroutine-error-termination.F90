@@ -7,8 +7,15 @@ program test_assert_subroutine_error_termination
   
   integer exit_status
 
-  print *
-  print *,"The assert subroutine"
+#if ASSERT_MULTI_IMAGE
+  if (this_image()==1) then
+#endif
+
+    print *, new_line(''), "The assert subroutine"
+
+#if ASSERT_MULTI_IMAGE
+  end if
+#endif
 
   ! TODO: The following is a HORRIBLY fragile test. 
   ! Specifically, it encodes a bunch of compiler-specific flags into an fpm command, 
