@@ -87,16 +87,37 @@ contains
     
   end subroutine
 
-    pure subroutine assert_always(assertion, description)
+    pure subroutine assert_always(assertion, description, file, line)
       !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
       implicit none
       logical, intent(in) :: assertion
       character(len=*), intent(in) :: description
+      character(len=*), intent(in), optional :: file
+      integer, intent(in), optional :: line
     character(len=:), allocatable :: message
+    character(len=:), allocatable :: location
     integer me
 
       check_assertion: &
       if (.not. assertion) then
+        ! Avoid harmless warnings from Cray Fortran:
+        allocate(character(len=0)::message)
+        allocate(character(len=0)::location)
+
+        ! format source location, if known
+        location = ''
+        if (present(file)) then
+          location = ' at ' // file // ':'
+          if (present(line)) then ! only print line number if file is also known
+            block
+              character(len=128) line_str
+              write(line_str, '(i0)') line
+              location = location // trim(adjustl(line_str))
+            end block
+          else
+            location = location // '<unknown>'
+          endif
+        endif
 
 #if ASSERT_MULTI_IMAGE
 #  if ASSERT_PARALLEL_CALLBACKS
@@ -107,10 +128,10 @@ contains
    block
         character(len=128) image_number
         write(image_number, *) me
-        message = 'Assertion failure on image ' // trim(adjustl(image_number)) // ':' // description 
+        message = 'Assertion failure on image ' // trim(adjustl(image_number)) // location // ': ' // description
    end block
 #else
-        message = 'Assertion failure: ' // description
+        message = 'Assertion failure' // location // ': ' // description
         me = 0 ! avoid a harmless warning
 #endif
  
