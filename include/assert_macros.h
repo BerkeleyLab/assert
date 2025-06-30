@@ -21,8 +21,8 @@
 #endif
 
 #if ASSERTIONS
-# define call_assert(assertion) call assert_always(assertion, "call_assert(" // CPP_STRINGIFY_SOURCE(assertion) // ") in file " // __FILE__ // ", line " // fortran_stringify_integer(__LINE__))
-# define call_assert_describe(assertion, description) call assert_always(assertion, description // " in file " // __FILE__ // ", line " // fortran_stringify_integer(__LINE__))
+# define call_assert(assertion) call assert_always(assertion, "call_assert(" // CPP_STRINGIFY_SOURCE(assertion) // ")", __FILE__, __LINE__)
+# define call_assert_describe(assertion, description) call assert_always(assertion, description, __FILE__, __LINE__)
 #else
 # define call_assert(assertion)
 # define call_assert_describe(assertion, description)
