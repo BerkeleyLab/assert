@@ -121,7 +121,11 @@ contains
 
 #if ASSERT_MULTI_IMAGE
 #  if ASSERT_PARALLEL_CALLBACKS
-        me = assert_this_image()
+        if (associated(assert_this_image)) then
+          me = assert_this_image()
+        else
+          me = 0
+        endif
 #  else
         me = this_image()
 #  endif
@@ -136,10 +140,13 @@ contains
 #endif
  
 #if ASSERT_PARALLEL_CALLBACKS
-        call assert_error_stop(message)
-#else
-        error stop message, QUIET=.false.
+        if (associated(assert_this_image)) then
+          call assert_error_stop(message)
+        else
+          ; ! deliberate fall-thru
+        endif
 #endif
+        error stop message, QUIET=.false.
 
       end if check_assertion
 
