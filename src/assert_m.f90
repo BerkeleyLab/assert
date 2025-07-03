@@ -2,8 +2,6 @@ module assert_m
   !! Public interface
   use assert_subroutine_m ! DO NOT PLACE AN ONLY CLAUSE HERE! 
                           ! All public members of assert_subroutine_m are exported
-  use intrinsic_array_m,   only : intrinsic_array_t
-  use characterizable_m,   only : characterizable_t
 
   ! The function below is public only to support automated
   ! invocation via `assert_macros.h`.  For a more broadly useful

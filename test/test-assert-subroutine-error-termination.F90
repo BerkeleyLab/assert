@@ -7,8 +7,15 @@ program test_assert_subroutine_error_termination
   
   integer exit_status
 
-  print *
-  print *,"The assert subroutine"
+#if ASSERT_MULTI_IMAGE
+  if (this_image()==1) then
+#endif
+
+    print *, new_line(''), "The assert subroutine"
+
+#if ASSERT_MULTI_IMAGE
+  end if
+#endif
 
   ! TODO: The following is a HORRIBLY fragile test. 
   ! Specifically, it encodes a bunch of compiler-specific flags into an fpm command, 
@@ -27,7 +34,8 @@ program test_assert_subroutine_error_termination
 #elif _CRAYFTN
     command = "fpm run --example false-assertion --profile release --compiler crayftn.sh --flag '-DASSERTIONS' > /dev/null 2>&1", &
 #else
-    command = "echo 'example/false_assertion.F90: unsupported compiler' && exit 1", &
+    ! For all other compilers, we assume that the default fpm command works
+    command = "fpm run --example false-assertion --profile release --flag '-DASSERTIONS -ffree-line-length-0' > /dev/null 2>&1", &
 #endif
     wait = .true., &
     exitstat = exit_status &
@@ -48,13 +56,16 @@ program test_assert_subroutine_error_termination
     end if
   end block
 #else
+#ifdef __LFORTRAN__
+    print *,trim(merge("passes","FAILS ",exit_status/=0)) // " on error-terminating when assertion = .false."
+#else
     block
       integer unit
       open(newunit=unit, file="build/exit_status", status="old")
       read(unit,*) exit_status
-      print *,trim(merge("passes","FAILS ",exit_status/=0)) // " on error-terminating when assertion = .false."
       close(unit)
     end block 
+#endif
 #endif
 
 contains
