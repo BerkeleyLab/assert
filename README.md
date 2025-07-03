@@ -136,15 +136,6 @@ With `flang-new` version 20 or later, use
 fpm test --compiler flang-new --flag "-O3"
 ```
 
-#### Multi-image (parallel) execution
-With `flang-new` version 21 built from the SiPearl llvm-project fork's 
-[prif branch](https://github.com/SiPearl/llvm-project/tree/prif), use
-```
-fpm test --compiler -caffeine -L<path-to-libcaffeine> -l<gasnet-conduit> -L<path-to-libgasnet>
-```
-where, for example, `<gasnet-conduit>` might be `gasnet-smp-seq` for
-shared-memory execution.
-
 ### LFortran `lfortran`
 
 #### Single-image (serial) execution
