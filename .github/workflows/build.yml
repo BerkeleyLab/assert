@@ -22,6 +22,28 @@ jobs:
             version: 14 # no package available
 
         include:
+          # --- LLVM flang coverage ---
+
+          - os: macos-13
+            compiler: flang
+            version: 20
+          - os: macos-14
+            compiler: flang
+            version: 20
+          - os: macos-15
+            compiler: flang
+            version: 20
+
+          # https://hub.docker.com/r/snowstep/llvm/tags
+          - os: ubuntu-24.04
+            compiler: flang
+            version: latest
+            container: snowstep/llvm:noble
+          - os: ubuntu-22.04
+            compiler: flang
+            version: latest
+            container: snowstep/llvm:jammy
+
           # https://hub.docker.com/r/phhargrove/llvm-flang/tags
           - os: ubuntu-24.04
             compiler: flang
@@ -36,6 +58,9 @@ jobs:
 #            compiler: flang
 #            version: new
 #            container: gmao/llvm-flang:latest
+
+          # --- Intel coverage ---
+
           - os: ubuntu-24.04
             compiler: ifx
             version: 2025.1.0
@@ -69,6 +94,26 @@ jobs:
         sudo apt install -y gfortran-${COMPILER_VERSION} build-essential
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${COMPILER_VERSION} 100 \
         --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${COMPILER_VERSION}
+
+
+    - name: Install Ubuntu Container Dependencies
+      if: ${{ contains(matrix.os, 'ubuntu') && matrix.container != '' && !contains(matrix.container, 'phhargrove') }}
+      run: |
+        set -x
+        apt update
+        apt install -y build-essential pkg-config make git curl
+
+    - name: Install macOS Dependencies
+      if: contains(matrix.os, 'macos') && matrix.compiler == 'flang'
+      run: |
+        set -x
+        brew update
+        brew install llvm@${COMPILER_VERSION} flang
+        # workaround issue #228: clang cannot find homebrew flang's C header
+        for p in /opt/homebrew /usr/local $(brew --prefix) ; do find $p/Cellar/flang -name ISO_Fortran_binding.h 2>/dev/null || true ; done
+        echo "CFLAGS=-I$(dirname $(find $(brew --prefix)/Cellar/flang -name ISO_Fortran_binding.h | head -1)) ${CFLAGS}" >> "$GITHUB_ENV"
+        # Prepend homebrew clang to PATH:
+        echo "PATH=$(brew --prefix)/opt/llvm/bin:${PATH}" >> "$GITHUB_ENV"
 
     - name: Setup Compilers
       run: |
