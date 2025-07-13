@@ -13,7 +13,7 @@ jobs:
         os: [macos-13, macos-14, macos-15, ubuntu-22.04, ubuntu-24.04]
         compiler: [ gfortran ]
         version: [ 12, 13, 14 ]
-        extra_flags: [ -ffree-line-length-0 ]
+        extra_flags: [ -g ]
 
         exclude:
           - os: ubuntu-22.04
@@ -26,7 +26,6 @@ jobs:
           - os: ubuntu-24.04
             compiler: flang
             version: 20
-            extra_flags: -g
             container: phhargrove/llvm-flang:20.1.0-1
           - os: ubuntu-24.04
             compiler: flang
@@ -37,27 +36,25 @@ jobs:
 #            compiler: flang
 #            version: new
 #            container: gmao/llvm-flang:latest
-#            extra_flags: -g
           - os: ubuntu-24.04
             compiler: ifx
             version: 2025.1.0
             error_stop_code: 128
-            extra_flags: -g
             container: intel/fortran-essentials:2025.1.0-0-devel-ubuntu24.04
             #container: intel/oneapi-hpckit:2025.1.0-0-devel-ubuntu24.04
           - os: ubuntu-22.04
             compiler: ifx
             version: 2025.0.0
             error_stop_code: 128
-            extra_flags: -g
             container: intel/fortran-essentials:2025.0.0-0-devel-ubuntu22.04 
 
     container:
       image: ${{ matrix.container }}
 
     env:
-      GCC_VERSION: ${{ matrix.version }}
+      COMPILER_VERSION: ${{ matrix.version }}
       FC: ${{ matrix.compiler }}
+      FFLAGS: ${{ matrix.extra_flags }}
       FPM_FLAGS:  --profile release --verbose
 
     steps:
@@ -69,9 +66,9 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt list -a 'gfortran-*'
-        sudo apt install -y gfortran-${GCC_VERSION} build-essential
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VERSION} 100 \
-        --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${GCC_VERSION}
+        sudo apt install -y gfortran-${COMPILER_VERSION} build-essential
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${COMPILER_VERSION} 100 \
+        --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-${COMPILER_VERSION}
 
     - name: Setup Compilers
       run: |
@@ -81,7 +78,8 @@ jobs:
         elif test "$FC" = "ifx" ; then \
           echo "FPM_FC=ifx" >> "$GITHUB_ENV" ; \
         else \
-          echo "FPM_FC=gfortran-${GCC_VERSION}" >> "$GITHUB_ENV" ; \
+          echo "FPM_FC=gfortran-${COMPILER_VERSION}" >> "$GITHUB_ENV" ; \
+          echo "FFLAGS=-ffree-line-length-0 $FFLAGS" >> "$GITHUB_ENV" ; \
         fi
         if test -n "${{ matrix.error_stop_code }}" ; then \
           echo "ERROR_STOP_CODE=${{ matrix.error_stop_code }}" >> "$GITHUB_ENV" ; \
@@ -118,22 +116,22 @@ jobs:
     - name: Build and Test (Assertions OFF)
       run: |
         set -x
-        fpm test                              ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
-        fpm run  --example false-assertion    ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
-        fpm run  --example invoke-via-macro   ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
+        fpm test                              ${FPM_FLAGS} --flag "$FFLAGS"
+        fpm run  --example false-assertion    ${FPM_FLAGS} --flag "$FFLAGS"
+        fpm run  --example invoke-via-macro   ${FPM_FLAGS} --flag "$FFLAGS"
 
     - name: Build and Test (Assertions ON)
       env:
         FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS
       run: |
         set -x
-                   fpm test                            ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}"
-        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = $ERROR_STOP_CODE )
+                   fpm test                            ${FPM_FLAGS} --flag "$FFLAGS"
+        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
 
     - name: Test Assertions w/ Parallel Callbacks
       env:
         FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS --flag -DASSERT_MULTI_IMAGE --flag -DASSERT_PARALLEL_CALLBACKS
       run: |
         set -x
-        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "${{ matrix.EXTRA_FLAGS }}" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
