@@ -19,7 +19,6 @@ This assertion utility contains four public entities:
 
 The `assert` subroutine
 * Error-terminates with a variable stop code when a caller-provided logical assertion fails,
-* Includes user-supplied diagnostic data in the output if provided by the calling procedure,
 * Is callable inside `pure` procedures, and
 * Can be eliminated at compile-time, as controlled by the `ASSERTIONS` preprocessor define.
 
@@ -42,10 +41,6 @@ If instead `fpm install` is used, then either the user must copy `include/assert
 the user must invoke `assert` directly (via `call assert(...)`).
 In the latter approach when the assertions are disabled, the `assert` procedure will start and end with `if (.false.) then ... end if`, which might facilitate automatic removal of `assert` during the dead-code removal phase of optimizing compilers.
 
-The `characterizable_t` type defines an `as_character()` deferred binding that produces `character` strings for use as diagnostic output from a user-defined derived type that extends  `characterizable_t` and implements the deferred binding.
-
-The `intrinsic_array_t` type that extends `characterizable_t` provides a convenient mechanism for producing diagnostic output from arrays of intrinsic type `complex`, `integer`, `logical`, or `real`.
-
 Use Cases
 ---------
 Two common use cases include
@@ -63,69 +58,21 @@ The requirements and assurances might be constraints of three kinds:
 
 The [example/README.md] file shows examples of writing constraints in notes on class diagrams using the formal syntax of the Object Constraint Language ([OCL]).
 
-Downloading, Building, and Running Examples
--------------------------------------------
+Running the Examples
+--------------------
+See the [./example](./example) subdirectory.
 
-### Downloading Assert
-```
-git clone git@github.com:berkeleylab/assert
-cd assert
-```
+Building and Testing
+--------------------
 
-### Building and testing with `gfortran`
-#### Single-image (serial) execution
-The command below builds Assert and runs the full test suite in a single image.
-For `gfortran` 14 or later, use
-```
-fpm test --profile release
-```
-For `gfortran` 13 or earlier, use
-```
-fpm test --profile release --flag "-ffree-line-length-0"
-```
-The above commands build the Assert library (with the default of assertion enforcement disabled) and runs the test suite.
-#### Multi-image (parallel) execution
-With `gfortran` 14 or later versions and OpenCoarrays installed, use
-```
-fpm test --compiler caf --profile release --runner "cafrun -n 2"
-```
-With `gfortran` 13 or earlier versions and OpenCoarrays installed,
-```
-fpm test --compiler caf --profile release --runner "cafrun -n 2" --flag "-ffree-line-length-0"
-```
-To build and test with the Numerical Algorithms Group (NAG) Fortran compiler version
-7.1 or later, use
-```
-fpm test --compiler=nagfor --profile release --flag "-coarray=cosmp -fpp -f2018"
-```
+- [Cray Compiler Environment (CCE) `ftn`](#cray-compiler-environment-cce-ftn)
+- [GNU Compiler Collection (GCC) `gfortran`](#gnu-compiler-collection-gcc-gfortran))
+- [Intel `ifx`](#intel-ifx))
+- [LFortran `lfortran`](#lfortran-lfortran)
+- [LLVM `flang-new`](#llvm-flang-new)
+- [Numerical Algorithms Group (NAG) `nagfor`](#numerical-algorithms-group-nag-nagfor)
 
-### Building and testing with the Intel `ifx` compiler
-#### Single-image (serial) execution
-```
-fpm test --compiler ifx --profile release 
-```
-#### Multi-image (parallel) execution 
-With Intel Fortran and Intel MPI installed,
-```
-fpm test --compiler ifx --profile release --flag "-coarray -DASSERT_MULTI_IMAGE"
-```
-
-### Building and testing with the LLVM `flang-new` compiler
-#### LLVM version 19
-```
-fpm test --compiler flang-new --flag "-mmlir -allow-assumed-rank -O3"
-```
-#### LLVM version 20 or later
-```
-fpm test --compiler flang-new --flag "-O3"
-```
-
-### Building and testing with the Numerical Algorithms Group (NAG) compiler
-```
-fpm test --compiler nagfor --profile release --flag "-fpp -coarray=cosmp"
-```
-
-### Building and testing with the Cray Compiler Environment (CCE)
+### Cray Compiler Environment (CCE) `ftn`
 Because `fpm` uses the compiler name to determine the compiler identity and because
 CCE provides one compiler wrapper, `ftn`, for invoking all compilers, you will
 need to invoke `ftn` in a shell script named to identify CCE compiler. For example,
@@ -141,12 +88,78 @@ Then build and test Assert with the command
 fpm test --compiler crayftn.sh --profile release
 ```
 
+### GNU Compiler Collection (GCC) `gfortran`
 
-### Building and testing with other compilers
-To use Assert with other compilers, please submit an issue or pull request.  
+#### Single-image (serial) execution
+With `gfortran` 14 or later, use
+```
+fpm test --profile release
+```
+With `gfortran` 13 or earlier, use
+```
+fpm test --profile release --flag "-ffree-line-length-0"
+```
+The above commands build the Assert library (with the default of assertion enforcement disabled) and runs the test suite.
 
-### Running the examples
-See the [./example](./example) subdirectory.
+#### Multi-image (parallel) execution
+With `gfortran` 14 or later versions and OpenCoarrays installed, use
+```
+fpm test --compiler caf --profile release --runner "cafrun -n 2"
+```
+With `gfortran` 13 or earlier versions and OpenCoarrays installed,
+```
+fpm test --compiler caf --profile release --runner "cafrun -n 2" --flag "-ffree-line-length-0"
+```
+
+### Intel `ifx`
+
+#### Single-image (serial) execution
+```
+fpm test --compiler ifx --profile release 
+```
+
+#### Multi-image (parallel) execution 
+With Intel Fortran and Intel MPI installed,
+```
+fpm test --compiler ifx --profile release --flag "-coarray -DASSERT_MULTI_IMAGE"
+```
+
+### LLVM `flang-new`
+
+#### Single-image (serial) execution
+With `flang-new` version 19, use
+```
+fpm test --compiler flang-new --flag "-mmlir -allow-assumed-rank -O3"
+```
+With `flang-new` version 20 or later, use
+```
+fpm test --compiler flang-new --flag "-O3"
+```
+
+### LFortran `lfortran`
+
+#### Single-image (serial) execution
+```
+fpm test --compiler lfortran --profile release --flag --cpp
+```
+
+### Numerical Algorithms Group (NAG) `nagfor`
+
+#### Single-image (serial) execution
+With `nagfor` version 7.1 or later, use
+```
+fpm test --compiler nagfor --flag -fpp
+```
+
+#### Multi-image execution
+With `nagfor` 7.1, use
+```
+fpm test --compiler nagfor --profile release --flag "-fpp -coarray=cosmp -f2018"
+```
+With `nagfor` 7.2 or later, use
+```
+fpm test --compiler nagfor --flag -fpp
+```
 
 Documentation
 -------------
@@ -208,9 +221,9 @@ character for line-breaks in a macro invocation:
 
 ```fortran
 ! OK for flang-new and gfortran
-call_assert_diagnose( computed_checksum == expected_checksum, \
-                      "Checksum mismatch failure!", \
-                      expected_checksum )                  
+call_assert_describe( computed_checksum == expected_checksum, \
+                      "Checksum mismatch failure!" \
+                    )                  
 ```
 
 Whereas Cray Fortran wants `&` line continuation characters, even inside
@@ -218,9 +231,9 @@ a macro invocation:
 
 ```fortran
 ! OK for Cray Fortran
-call_assert_diagnose( computed_checksum == expected_checksum, &
-                      "Checksum mismatch failure!", &
-                      expected_checksum )                  
+call_assert_describe( computed_checksum == expected_checksum, &
+                      "Checksum mismatch failure!" &
+                    )                  
 ```
 
 There appears to be no syntax acceptable to all compilers, so when writing
@@ -237,9 +250,9 @@ after macro expansion (on gfortran and flang-new):
 
 ```fortran
 ! INCORRECT: cannot use Fortran comments inside macro invocation
-call_assert_diagnose( computed_checksum == expected_checksum, ! ensured since version 3.14
-                      "Checksum mismatch failure!",           ! TODO: write a better message here
-                      computed_checksum )             
+call_assert_describe( computed_checksum == expected_checksum, ! ensured since version 3.14
+                      "Checksum mismatch failure!"            ! TODO: write a better message here
+                    )             
 ```
 
 Depending on your compiler it *might* be possible to use a C-style block
@@ -247,9 +260,9 @@ comment (because they are often removed by the preprocessor), for example with
 gfortran one can instead write the following:
 
 ```fortran
-call_assert_diagnose( computed_checksum == expected_checksum, /* ensured since version 3.14 */ \
-                      "Checksum mismatch failure!",           /* TODO: write a better message here */ \
-                      computed_checksum )
+call_assert_describe( computed_checksum == expected_checksum, /* ensured since version 3.14 */ \
+                      "Checksum mismatch failure!"            /* TODO: write a better message here */ \
+                    )
 ```
 
 However that capability might not be portable to other Fortran compilers. 
@@ -257,9 +270,9 @@ When in doubt, one can always move the comment outside the macro invocation:
 
 ```fortran
 ! assert a property ensured since version 3.14
-call_assert_diagnose( computed_checksum == expected_checksum, \
-                      "Checksum mismatch failure!",           \
-                      computed_checksum ) ! TODO: write a better message above
+call_assert_describe( computed_checksum == expected_checksum, \
+                      "Checksum mismatch failure!"            \
+                    ) ! TODO: write a better message above
 ```                      
 
 Legal Information
