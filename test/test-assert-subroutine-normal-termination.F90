@@ -14,9 +14,9 @@ program test_assert_subroutine_normal_termination
   sync all
 #endif
 
-  call assert(assertion = .true., description = "3 keyword arguments ")
-  call assert(            .true., description = "2 keyword arguments ")
-  call assert(            .true.,               "no optional argument")
+  call assert(assertion = .true., description = "2 keyword arguments")
+  call assert(            .true., description = "1 keyword arguments")
+  call assert(            .true.,               "0 keyword arguments")
 
 #if ASSERT_MULTI_IMAGE
   sync all
