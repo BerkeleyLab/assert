@@ -29,58 +29,41 @@ program test_assert_subroutine_error_termination
     command = "fpm run --example false-assertion --compiler nagfor --flag '-DASSERTIONS -fpp' > /dev/null 2>&1", &
 #elif __flang__
     command = "./test/run-false-assertion.sh", &
+#   define RESULT_FROM_FILE 1
 #elif __INTEL_COMPILER
     command = "./test/run-false-assertion-intel.sh", &
+#   define RESULT_FROM_FILE 1
 #elif _CRAYFTN
     command = "fpm run --example false-assertion --profile release --compiler crayftn.sh --flag '-DASSERTIONS' > /dev/null 2>&1", &
-#else
-    ! For all other compilers, we assume that the default fpm command works
+#elif __LFORTRAN__
     command = "fpm run --example false-assertion --profile release --flag '-DASSERTIONS -ffree-line-length-0' > /dev/null 2>&1", &
+#else
+    ! All other compilers need their command manually validated and added to the list above
+    command = "echo 'example/false_assertion.F90: unsupported compiler' && exit 1", &
 #endif
     wait = .true., &
     exitstat = exit_status &
   )
-    
-#if ASSERT_MULTI_IMAGE
-  block
-    logical error_termination
 
-    error_termination = exit_status /=0
-    call co_all(error_termination)
-    if (this_image()==1) then
-      if (error_termination) then
-        print *,"  passes on error-terminating when assertion = .false."
-      else 
-        print *,"  FAILS to error-terminate when assertion = .false. (Yikes! Who designed this OS?)"
-      end if
-    end if
-  end block
-#else
-#ifdef __LFORTRAN__
-    print *,trim(merge("passes","FAILS ",exit_status/=0)) // " on error-terminating when assertion = .false."
-#else
-    block
+#if RESULT_FROM_FILE
+  ! some compilers don't provide a reliable exitstat for the command above, 
+  ! so for those we write it to a file and retrieve it here
+  block
       integer unit
       open(newunit=unit, file="build/exit_status", status="old")
       read(unit,*) exit_status
       close(unit)
-    end block 
+  end block 
 #endif
-#endif
-
-contains
-
-  pure function and_operation(lhs,rhs) result(lhs_and_rhs)
-    logical, intent(in) :: lhs, rhs
-    logical lhs_and_rhs
-    lhs_and_rhs = lhs .and. rhs
-  end function
 
 #if ASSERT_MULTI_IMAGE
-  subroutine co_all(boolean)
-    logical, intent(inout) :: boolean
-    call co_reduce(boolean, and_operation)
-  end subroutine
+  exit_status = abs(exit_status)
+  call co_max(exit_status)
+  if (this_image()==1) then
+    print *,trim(merge("passes","FAILS ",exit_status/=0)) // " on error-terminating when assertion = .false."
+  end if
+#else
+    print *,trim(merge("passes","FAILS ",exit_status/=0)) // " on error-terminating when assertion = .false."
 #endif
 
 end program test_assert_subroutine_error_termination
