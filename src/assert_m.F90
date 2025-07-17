@@ -9,7 +9,7 @@
 
 #include "assert_features.h"
 
-module assert_subroutine_m
+module assert_m
   !! summary: Utility for runtime enforcement of logical assertions.
   !! usage: error-terminate if the assertion fails:
   !!
@@ -152,5 +152,5 @@ contains
 
   end subroutine
 
-end module assert_subroutine_m
+end module assert_m
 
