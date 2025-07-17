@@ -52,7 +52,7 @@ program test_assert_macros
   block
   integer :: computed_checksum = 37, expected_checksum = 37
 
-#if defined(_CRAYFTN)
+#if defined(_CRAYFTN) || defined(__LFORTRAN__)
   ! Cray Fortran uses different line continuations in macro invocations
   call_assert_describe( computed_checksum == expected_checksum, &
                       "Checksum mismatch failure!" &
