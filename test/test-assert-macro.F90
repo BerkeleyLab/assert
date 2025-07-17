@@ -43,6 +43,41 @@ program test_assert_macros
     print '(a)',"  pass on invocation from a pure function"
   end block
 
+  !------------------------------------------
+#undef ASSERTIONS
+#define ASSERTIONS 1
+#include "assert_macros.h"
+
+  ! The following examples are taken from README.md and should be kept in sync with that document:
+  block
+  integer :: computed_checksum = 37, expected_checksum = 37
+
+#if defined(_CRAYFTN)
+  ! Cray Fortran uses different line continuations in macro invocations
+  call_assert_describe( computed_checksum == expected_checksum, &
+                      "Checksum mismatch failure!" &
+                      )                      
+  print *,"  passes with line breaks inside macro invocation"
+
+  call_assert_describe( computed_checksum == expected_checksum, & ! ensured since version 3.14
+                        "Checksum mismatch failure!"            & ! TODO: write a better message here 
+                      )
+  print *,"  passes with C block comments embedded in macro invocation"
+#else
+  call_assert_describe( computed_checksum == expected_checksum, \
+                        "Checksum mismatch failure!" \
+                      )
+  print *,"  passes with line breaks inside macro invocation"
+
+  call_assert_describe( computed_checksum == expected_checksum, /* ensured since version 3.14 */ \
+                        "Checksum mismatch failure!"            /* TODO: write a better message here */ \
+                      )
+  print *,"  passes with C block comments embedded in macro invocation"
+#endif
+
+  end block
+  !------------------------------------------
+
 contains 
 
   pure function check_assert(cond) result(ok)
