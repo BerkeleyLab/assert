@@ -180,3 +180,4 @@ jobs:
       run: |
         set -x
         ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
