@@ -12,15 +12,15 @@ Overview
 --------
 This assertion utility contains four public entities:
 
-1. An `assert` subroutine,
-2. A `characterizable_t` abstract type supporting `assert`, and
-3. An `intrinsic_array_t` non-abstract type extending `characterizable_t`.
-4. An `assert_macros.h` header file containing C-preprocessor macros.
+1. An `assert_macros.h` file defining the recommended preprocessor macros for writing assertion:
+   a. `call_assert(assertion)`,
+   b. `call_assert_describe(assertion, description)`, and
+2. An `assert` subroutine.
 
 The `assert` subroutine
 * Error-terminates with a variable stop code when a caller-provided logical assertion fails,
 * Is callable inside `pure` procedures, and
-* Can be eliminated at compile-time, as controlled by the `ASSERTIONS` preprocessor define.
+* Can be eliminated by not defining the `ASSERTIONS` preprocessor macro.
 
 Assertion enforcement is controlled via the `ASSERTIONS` preprocessor macro,
 which can be defined to non-zero or zero at compilation time to
@@ -164,9 +164,7 @@ fpm test --compiler nagfor --flag -fpp
 Documentation
 -------------
 
-See [Assert's GitHub Pages site] for HTML documentation generated with [`ford`].
-
-For further documentation, please see [example/README.md] and the [tests].  Also, the code in [src] has comments formatted for generating HTML documentation using [FORD].
+Please see [example/README.md] and the [tests] for examples of how to use Assert.
 
 ### Potential pitfalls of `call_assert` macros:
 
@@ -178,7 +176,7 @@ of aggressively asserting invariants throughout their code, without needing to
 balance any potential performance cost associated with such assertions when the
 code runs in production.
 
-Unfortunately, C-preprocessor macros do not integrate cleanly with some aspects
+Unfortunately, preprocessor macros do not integrate cleanly with some aspects
 of the Fortran language. As such, you might encounter one or more of the
 following pitfalls when using these macros.
 
@@ -212,7 +210,7 @@ In the case of gfortran, this appears to have been resolved by default starting 
 #### Line breaks in macro invocations
 
 The preprocessor is not currently specified by any Fortran standard, and
-as of 2024 its operation differs in subtle ways between compilers.
+as of 2025 its operation differs in subtle ways between compilers.
 One way in which compilers differ is how macro invocations can safely be broken
 across multiple lines.
 
@@ -286,9 +284,6 @@ See the [LICENSE](LICENSE) file for copyright and licensing information.
 [example/README.md]: ./example/README.md
 [tests]: ./tests
 [src]: ./src
-[FORD]: https://github.com/Fortran-FOSS-Programmers/ford
 [Fortran Package Manager]: https://github.com/fortran-lang/fpm
 [OCL]: https://en.wikipedia.org/wiki/Object_Constraint_Language
-[Assert's GitHub Pages site]: https://berkeleylab.github.io/assert/
-[`ford`]: https://github.com/Fortran-FOSS-Programmers/ford
 [example/invoke-via-macro.F90]: ./example/invoke-via-macro.F90
