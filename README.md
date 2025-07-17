@@ -148,7 +148,7 @@ fpm test --compiler lfortran --profile release --flag --cpp
 #### Single-image (serial) execution
 With `nagfor` version 7.1 or later, use
 ```
-fpm test --compiler nagfor --profile release --flag -fpp
+fpm test --compiler nagfor --flag -fpp
 ```
 
 #### Multi-image execution
@@ -158,7 +158,7 @@ fpm test --compiler nagfor --profile release --flag "-fpp -coarray=cosmp -f2018"
 ```
 With `nagfor` 7.2 or later, use
 ```
-fpm test --compiler nagfor --profile release --flag -fpp
+fpm test --compiler nagfor --flag -fpp
 ```
 
 Documentation
