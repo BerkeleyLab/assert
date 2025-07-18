@@ -12,10 +12,10 @@ Overview
 --------
 This assertion utility contains four public entities:
 
-1. An `assert_macros.h` file defining the recommended preprocessor macros for writing assertion:
-   a. `call_assert(assertion)`,
-   b. `call_assert_describe(assertion, description)`, and
-2. An `assert` subroutine.
+* An `assert_macros.h` file defining the recommended preprocessor macros for writing assertion:
+  - `call_assert(assertion)`
+  - `call_assert_describe(assertion, description)`
+* An `assert` subroutine
 
 The `assert` subroutine
 * Error-terminates with a variable stop code when a caller-provided logical assertion fails,
