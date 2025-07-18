@@ -12,7 +12,7 @@ Overview
 --------
 This assertion utility contains four public entities:
 
-* An `assert_macros.h` file defining the recommended preprocessor macros for writing assertion:
+* An `assert_macros.h` file defining the recommended preprocessor macros for writing assertions:
   - `call_assert(assertion)`
   - `call_assert_describe(assertion, description)`
 * An `assert` subroutine
