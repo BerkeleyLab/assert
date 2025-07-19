@@ -30,7 +30,7 @@ When the `ASSERTIONS` preprocessor macro is not defined to any value,
 the default is that assertions are *disabled* and will not check the condition.
 
 To enable assertion enforcement (e.g., for a debug build), define the
-preprocessor ASSERTIONS to non-zero, eg:
+preprocessor ASSERTIONS to non-zero, e.g.,
 ```
 fpm build --flag "-DASSERTIONS"
 ```
@@ -45,10 +45,27 @@ Use Cases
 ---------
 Two common use cases include
 
-1. [Enforcing programming contracts] throughout a project via runtime checks.
-2. Producing output in `pure` procedures for debugging purposes.
+1. [Producing output in pure procedures] for debugging purposes.
+2. [Enforcing programming contracts] throughout a project via runtime checks.
 
-### Enforcing programming contracts
+### Producing output in pure procedures
+Writing pure procedures communicates useful information to a compiler or a developer.
+Specifically, the pure attribute conveys compliance with several constraints that clarify data dependencies and preclude side effects.
+For a compiler, these constraints support optimizations, including automatic parallelization on a central processing unit (CPU) or offloading to a graphics processing unit (GPU).
+For a developer, the constraints support refactoring tasks such as code movement.
+
+A developer seeking output inside a procedure presumably has an expectation regarding what ranges of output values represent correct program execution.
+A developer can state such expectations in an assertion such as `call_assert(i>0 .and. j<0)`.
+Enforce the assertion by defining the `ASSERTIONS` macro when compiling.
+If the expectation is not met, the program error terminates and prints a stop code showing the assertion's file and line location and a description.
+By default, the description is the literal text of what was asserted: `i>0 .and. j<0` in the aforementioned example.
+Alternatively, the user can provide a custom description.
+
+For richer diagnostic messages from failed assertions, please see the [Julienne] correctness-checking framework.
+Julienne wraps Assert and defines idioms that automatically generate diagnostic messages containing program data.
+Julienne also offers string-handling utilities to assist users with customizing diagnostic messages by, for example, converting an array of numeric type into string representing comma-separated values as text.
+
+## Enforcing programming contracts
 Programming can be thought of as requirements for correct execution of a procedure and assurances for the result of correct execution.
 The requirements and assurances might be constraints of three kinds:
 
@@ -193,17 +210,17 @@ limit. This can result in compile-time errors like the following from gfortran:
 Error: Line truncated at (1) [-Werror=line-truncation]
 ```
 
-Some compilers offer a command-line argument that can be used to workaround this legacy limit, eg:
+Some compilers offer a command-line argument that can be used to workaround this legacy limit, e.g.,
 
-* `gfortran -ffree-line-length-0` aka `gfortran -ffree-line-length-none`
+* `gfortran -ffree-line-length-0` or equivalently `gfortran -ffree-line-length-none`
 
-When using `fpm`, one can pass such a flag to the compiler using the `fpm --flag` option, eg:
+When using `fpm`, one can pass such a flag to the compiler using the `fpm --flag` option, e.g.,
 
 ```shell
 $ fpm test --profile release --flag -ffree-line-length-0
 ```
 
-Thankfully Fortran 2023 raised this obscolecent line limit to 10,000
+Thankfully, Fortran 2023 raised this obsolescent line limit to 10,000
 characters, so by using newer compilers you might never encounter this problem.
 In the case of gfortran, this appears to have been resolved by default starting in release 14.1.0.
 
@@ -283,7 +300,8 @@ See the [LICENSE](LICENSE) file for copyright and licensing information.
 [Single-image execution]: #single-image-execution
 [example/README.md]: ./example/README.md
 [tests]: ./tests
-[src]: ./src
 [Fortran Package Manager]: https://github.com/fortran-lang/fpm
 [OCL]: https://en.wikipedia.org/wiki/Object_Constraint_Language
 [example/invoke-via-macro.F90]: ./example/invoke-via-macro.F90
+[Producing output in pure procedures]: #producing-output-in-pure-procedures
+[Julienne]: https://go.lbl.gov/julienne
