@@ -50,7 +50,7 @@ Two common use cases include
 
 ### Producing output in pure procedures
 Writing pure procedures communicates useful information to a compiler or a developer.
-Specifically, the pure attribute conveys compliance with several constraints that clarify data dependencies and preclude side effects.
+Specifically, the pure attribute conveys compliance with several constraints that clarify data dependencies and preclude most side effects.
 For a compiler, these constraints support optimizations, including automatic parallelization on a central processing unit (CPU) or offloading to a graphics processing unit (GPU).
 For a developer, the constraints support refactoring tasks such as code movement.
 
