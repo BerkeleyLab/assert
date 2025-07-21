@@ -65,7 +65,7 @@ For richer diagnostic messages from failed assertions, please see the [Julienne]
 Julienne wraps Assert and defines idioms that automatically generate diagnostic messages containing program data.
 Julienne also offers string-handling utilities to assist users with customizing diagnostic messages by, for example, converting an array of numeric type into string representing comma-separated values as text.
 
-## Enforcing programming contracts
+### Enforcing programming contracts
 Programming can be thought of as requirements for correct execution of a procedure and assurances for the result of correct execution.
 The requirements and assurances might be constraints of three kinds:
 
