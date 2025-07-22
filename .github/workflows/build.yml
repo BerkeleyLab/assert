@@ -174,6 +174,7 @@ jobs:
         set -x
         fpm test                              ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example false-assertion    ${FPM_FLAGS} --flag "$FFLAGS"
+        fpm run  --example simple-assertions  ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example invoke-via-macro   ${FPM_FLAGS} --flag "$FFLAGS"
 
     - name: Build and Test (Assertions ON)
@@ -181,14 +182,16 @@ jobs:
         FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS
       run: |
         set -x
-                   fpm test                            ${FPM_FLAGS} --flag "$FFLAGS"
-        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+                   fpm test                             ${FPM_FLAGS} --flag "$FFLAGS"
+        ( set +e ; fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example simple-assertions ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
 
     - name: Test Assertions w/ Parallel Callbacks
       env:
         FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS --flag -DASSERT_MULTI_IMAGE --flag -DASSERT_PARALLEL_CALLBACKS
       run: |
         set -x
-        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example simple-assertions ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
