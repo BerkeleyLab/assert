@@ -18,9 +18,12 @@ contains
 
     associate(discriminant => b**2 - 4*a*c)
       call assert(assertion = discriminant >= 0., description = "discriminant >= 0") ! precondition
+      allocate(zeros(2))
+      ! there's a deliberate math bug in the following line, to help demonstrate assertion failure
       zeros = -b + [sqrt(discriminant), -sqrt(discriminant)]
     end associate
 
+    ! This assertion will fail (due to the defect above) when ASSERTIONS are enabled:
     call assert(all(abs(a*zeros**2 + b*zeros + c) < tolerance), "All residuals within tolerance.") ! postcondition
   end function
 
