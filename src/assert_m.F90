@@ -104,6 +104,7 @@ contains
         allocate(character(len=0)::message)
         allocate(character(len=0)::location)
 
+
         ! format source location, if known
         location = ''
         if (present(file)) then
@@ -146,7 +147,13 @@ contains
           ; ! deliberate fall-thru
         endif
 #endif
+#ifdef __LFORTRAN__
+        ! workaround a defect observed in LFortran 0.54:
+        ! error stop with an allocatable character argument prints garbage
+        error stop message//'', QUIET=.false.
+#else
         error stop message, QUIET=.false.
+#endif
 
       end if check_assertion
 
