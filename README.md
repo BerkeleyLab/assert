@@ -45,10 +45,10 @@ Use Cases
 ---------
 Two common use cases include
 
-1. [Producing output in pure procedures] for debugging purposes.
+1. [Supporting output in pure procedures] for debugging purposes.
 2. [Enforcing programming contracts] throughout a project via runtime checks.
 
-### Producing output in pure procedures
+### Supporting output in pure procedures
 Writing pure procedures communicates useful information to a compiler or a developer.
 Specifically, the pure attribute conveys compliance with several constraints that clarify data dependencies and preclude most side effects.
 For a compiler, these constraints support optimizations, including automatic parallelization on a central processing unit (CPU) or offloading to a graphics processing unit (GPU).
