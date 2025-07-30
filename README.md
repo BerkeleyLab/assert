@@ -54,6 +54,7 @@ Specifically, the pure attribute conveys compliance with several constraints tha
 For a compiler, these constraints support optimizations, including automatic parallelization on a central processing unit (CPU) or offloading to a graphics processing unit (GPU).
 For a developer, the constraints support refactoring tasks such as code movement.
 
+The Fortran standard prohibits input or output in pure procedures, which precludes a common debugging mechanism.
 A developer seeking output inside a procedure presumably has an expectation regarding what ranges of output values represent correct program execution.
 A developer can state such expectations in an assertion such as `call_assert(i>0 .and. j<0)`.
 Enforce the assertion by defining the `ASSERTIONS` macro when compiling.
