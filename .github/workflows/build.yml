@@ -73,6 +73,14 @@ jobs:
             error_stop_code: 128
             container: intel/fortran-essentials:2025.0.0-0-devel-ubuntu22.04 
 
+          # --- LFortran coverage ---
+
+          # https://hub.docker.com/r/phhargrove/lfortran/tags
+          - os: ubuntu-24.04
+            compiler: lfortran
+            version: 0.54.0
+            container: phhargrove/lfortran:0.54.0-1
+
     container:
       image: ${{ matrix.container }}
 
@@ -122,6 +130,9 @@ jobs:
           echo "FPM_FC=flang-new" >> "$GITHUB_ENV" ; \
         elif test "$FC" = "ifx" ; then \
           echo "FPM_FC=ifx" >> "$GITHUB_ENV" ; \
+        elif test "$FC" = "lfortran" ; then \
+          echo "FPM_FC=lfortran" >> "$GITHUB_ENV" ; \
+          echo "FFLAGS=--cpp $FFLAGS" >> "$GITHUB_ENV" ; \
         else \
           echo "FPM_FC=gfortran-${COMPILER_VERSION}" >> "$GITHUB_ENV" ; \
           echo "FFLAGS=-ffree-line-length-0 $FFLAGS" >> "$GITHUB_ENV" ; \
@@ -163,6 +174,7 @@ jobs:
         set -x
         fpm test                              ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example false-assertion    ${FPM_FLAGS} --flag "$FFLAGS"
+        fpm run  --example simple-assertions  ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example invoke-via-macro   ${FPM_FLAGS} --flag "$FFLAGS"
 
     - name: Build and Test (Assertions ON)
@@ -170,14 +182,18 @@ jobs:
         FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS
       run: |
         set -x
-                   fpm test                            ${FPM_FLAGS} --flag "$FFLAGS"
-        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+                   fpm test                             ${FPM_FLAGS} --flag "$FFLAGS"
+        ( set +e ; fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example simple-assertions ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
 
     - name: Test Assertions w/ Parallel Callbacks
+      if: ${{ matrix.compiler != 'lfortran' }} # issue #68
       env:
-        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS --flag -DASSERT_MULTI_IMAGE --flag -DASSERT_PARALLEL_CALLBACKS
+        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERT_MULTI_IMAGE --flag -DASSERT_PARALLEL_CALLBACKS
       run: |
         set -x
-        ( set +e ; fpm run  --example false-assertion  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example invoke-via-macro ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+        fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS"
+        fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS"
+        ( set +e ; fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS -DASSERTIONS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS -DASSERTIONS" ; test $? = $ERROR_STOP_CODE )
