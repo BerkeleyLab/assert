@@ -62,10 +62,6 @@ If the expectation is not met, the program error terminates and prints a stop co
 By default, the description is the literal text of what was asserted: `i>0 .and. j<0` in the aforementioned example.
 Alternatively, the user can provide a custom description.
 
-For richer diagnostic messages from failed assertions, please see the [Julienne] correctness-checking framework.
-Julienne wraps Assert and defines idioms that automatically generate diagnostic messages containing program data.
-Julienne also offers string-handling utilities to assist users with customizing diagnostic messages by, for example, converting an array of numeric type into string representing comma-separated values as text.
-
 ### Enforcing programming contracts
 Programming can be thought of as requirements for correct execution of a procedure and assurances for the result of correct execution.
 The requirements and assurances might be constraints of three kinds:
@@ -290,6 +286,16 @@ call_assert_describe( computed_checksum == expected_checksum, \
                       "Checksum mismatch failure!"            \
                     ) ! TODO: write a better message above
 ```                      
+
+Clients of Assert
+-----------------
+
+A few packages that use Assert include
+
+* The [Julienne](https://go.lbl.gov/julienne) correctness-checking framework wraps Assert and defines idioms that automatically generate diagnostic messages containing program data.
+* The [Caffeine](https://go.lbl.gov/caffeine) multi-image Fortran compiler runtime library uses Assert for internal sanity checks and interface validation.
+* The [Fiats](https://go.lbl.gov/fiats) deep learning library uses Assert and Julienne.
+* The [Matcha](https://go.lbl.gov/matcha) T-cell motility simulator also uses Assert and Julienne.
 
 Legal Information
 -----------------
