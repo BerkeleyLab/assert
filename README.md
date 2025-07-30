@@ -30,7 +30,7 @@ When the `ASSERTIONS` preprocessor macro is not defined to any value,
 the default is that assertions are *disabled* and will not check the condition.
 
 To enable assertion enforcement (e.g., for a debug build), define the
-preprocessor ASSERTIONS to non-zero, eg:
+preprocessor ASSERTIONS to non-zero, e.g.,
 ```
 fpm build --flag "-DASSERTIONS"
 ```
@@ -45,8 +45,22 @@ Use Cases
 ---------
 Two common use cases include
 
-1. [Enforcing programming contracts] throughout a project via runtime checks.
-2. Producing output in `pure` procedures for debugging purposes.
+1. [Supporting output in pure procedures] for debugging purposes.
+2. [Enforcing programming contracts] throughout a project via runtime checks.
+
+### Supporting output in pure procedures
+Writing pure procedures communicates useful information to a compiler or a developer.
+Specifically, the pure attribute conveys compliance with several constraints that clarify data dependencies and preclude most side effects.
+For a compiler, these constraints support optimizations, including automatic parallelization on a central processing unit (CPU) or offloading to a graphics processing unit (GPU).
+For a developer, the constraints support refactoring tasks such as code movement.
+
+The Fortran standard prohibits input or output in pure procedures, which precludes a common debugging mechanism.
+A developer seeking output inside a procedure presumably has an expectation regarding what ranges of output values represent correct program execution.
+A developer can state such expectations in an assertion such as `call_assert(i>0 .and. j<0)`.
+Enforce the assertion by defining the `ASSERTIONS` macro when compiling.
+If the expectation is not met, the program error terminates and prints a stop code showing the assertion's file and line location and a description.
+By default, the description is the literal text of what was asserted: `i>0 .and. j<0` in the aforementioned example.
+Alternatively, the user can provide a custom description.
 
 ### Enforcing programming contracts
 Programming can be thought of as requirements for correct execution of a procedure and assurances for the result of correct execution.
@@ -193,17 +207,17 @@ limit. This can result in compile-time errors like the following from gfortran:
 Error: Line truncated at (1) [-Werror=line-truncation]
 ```
 
-Some compilers offer a command-line argument that can be used to workaround this legacy limit, eg:
+Some compilers offer a command-line argument that can be used to workaround this legacy limit, e.g.,
 
-* `gfortran -ffree-line-length-0` aka `gfortran -ffree-line-length-none`
+* `gfortran -ffree-line-length-0` or equivalently `gfortran -ffree-line-length-none`
 
-When using `fpm`, one can pass such a flag to the compiler using the `fpm --flag` option, eg:
+When using `fpm`, one can pass such a flag to the compiler using the `fpm --flag` option, e.g.,
 
 ```shell
 $ fpm test --profile release --flag -ffree-line-length-0
 ```
 
-Thankfully Fortran 2023 raised this obscolecent line limit to 10,000
+Thankfully, Fortran 2023 raised this obsolescent line limit to 10,000
 characters, so by using newer compilers you might never encounter this problem.
 In the case of gfortran, this appears to have been resolved by default starting in release 14.1.0.
 
@@ -273,6 +287,16 @@ call_assert_describe( computed_checksum == expected_checksum, \
                     ) ! TODO: write a better message above
 ```                      
 
+Clients of Assert
+-----------------
+
+A few packages that use Assert include
+
+* The [Julienne](https://go.lbl.gov/julienne) correctness-checking framework wraps Assert and defines idioms that automatically generate diagnostic messages containing program data.
+* The [Caffeine](https://go.lbl.gov/caffeine) multi-image Fortran compiler runtime library uses Assert for internal sanity checks and interface validation.
+* The [Fiats](https://go.lbl.gov/fiats) deep learning library uses Assert and Julienne.
+* The [Matcha](https://go.lbl.gov/matcha) T-cell motility simulator also uses Assert and Julienne.
+
 Legal Information
 -----------------
 See the [LICENSE](LICENSE) file for copyright and licensing information.
@@ -283,7 +307,8 @@ See the [LICENSE](LICENSE) file for copyright and licensing information.
 [Single-image execution]: #single-image-execution
 [example/README.md]: ./example/README.md
 [tests]: ./tests
-[src]: ./src
 [Fortran Package Manager]: https://github.com/fortran-lang/fpm
 [OCL]: https://en.wikipedia.org/wiki/Object_Constraint_Language
 [example/invoke-via-macro.F90]: ./example/invoke-via-macro.F90
+[Producing output in pure procedures]: #producing-output-in-pure-procedures
+[Julienne]: https://go.lbl.gov/julienne
