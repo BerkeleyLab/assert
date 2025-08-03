@@ -7,6 +7,9 @@ jobs:
   build:
     name: ${{ matrix.compiler }}-${{ matrix.version }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -89,6 +92,7 @@ jobs:
       FC: ${{ matrix.compiler }}
       FFLAGS: ${{ matrix.extra_flags }}
       FPM_FLAGS:  --profile release --verbose
+      CHECK_ASSERT: --flag -DASSERTIONS 2>&1 | tee output ; test ${PIPESTATUS[0]} = $ERROR_STOP_CODE && grep -q "Assertion failure" output
 
     steps:
     - name: Checkout code
@@ -178,14 +182,12 @@ jobs:
         fpm run  --example invoke-via-macro   ${FPM_FLAGS} --flag "$FFLAGS"
 
     - name: Build and Test (Assertions ON)
-      env:
-        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS
       run: |
         set -x
-                   fpm test                             ${FPM_FLAGS} --flag "$FFLAGS"
-        ( set +e ; fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example simple-assertions ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+                   fpm test                             ${FPM_FLAGS} --flag "$FFLAGS" --flag -DASSERTIONS
+        ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
+        ( set +e ; eval fpm run  --example simple-assertions ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
+        ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
 
     - name: Test Assertions w/ Parallel Callbacks
       if: ${{ matrix.compiler != 'lfortran' }} # issue #68
@@ -195,5 +197,5 @@ jobs:
         set -x
         fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS"
-        ( set +e ; fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS -DASSERTIONS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS -DASSERTIONS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
+        ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
