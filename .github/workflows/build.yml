@@ -84,6 +84,12 @@ jobs:
             version: 0.54.0
             container: phhargrove/lfortran:0.54.0-1
 
+          # https://github.com/lfortran/lfortran/pkgs/container/lfortran
+          - os: ubuntu-22.04
+            compiler: lfortran
+            version: latest
+            container: ghcr.io/lfortran/lfortran:latest
+
     container:
       image: ${{ matrix.container }}
 
@@ -113,7 +119,13 @@ jobs:
       run: |
         set -x
         apt update
-        apt install -y build-essential pkg-config make git curl
+        apt install -y build-essential # pkg-config make git curl
+        # Add container lfortran to PATH:
+        if test "$FC" = "lfortran"; then \
+          echo "/app/bin" >> "$GITHUB_PATH" ; \
+          ls -alh /app/bin ; \
+          ls -alh /app/share/lfortran/lib/ ; \
+        fi
 
     - name: Install macOS Dependencies
       if: contains(matrix.os, 'macos') && matrix.compiler == 'flang'
@@ -166,8 +178,9 @@ jobs:
 
     - name: Version info
       run: |
-        set -x
         echo == TOOL VERSIONS ==
+        echo PATH="$PATH"
+        set -x
         uname -a
         if test -r /etc/os-release ; then cat /etc/os-release ; fi
         ${FPM_FC} --version
@@ -190,7 +203,7 @@ jobs:
         ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
 
     - name: Test Assertions w/ Parallel Callbacks
-      if: ${{ matrix.compiler != 'lfortran' }} # issue #68
+      if: ${{ matrix.compiler != 'lfortran' || matrix.version == 'latest' }} # issue #68
       env:
         FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERT_MULTI_IMAGE --flag -DASSERT_PARALLEL_CALLBACKS
       run: |
