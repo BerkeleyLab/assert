@@ -7,6 +7,9 @@ jobs:
   build:
     name: ${{ matrix.compiler }}-${{ matrix.version }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -81,6 +84,12 @@ jobs:
             version: 0.54.0
             container: phhargrove/lfortran:0.54.0-1
 
+          # https://github.com/lfortran/lfortran/pkgs/container/lfortran
+          - os: ubuntu-22.04
+            compiler: lfortran
+            version: latest
+            container: ghcr.io/lfortran/lfortran:latest
+
     container:
       image: ${{ matrix.container }}
 
@@ -89,6 +98,7 @@ jobs:
       FC: ${{ matrix.compiler }}
       FFLAGS: ${{ matrix.extra_flags }}
       FPM_FLAGS:  --profile release --verbose
+      CHECK_ASSERT: --flag -DASSERTIONS 2>&1 | tee output ; test ${PIPESTATUS[0]} = $ERROR_STOP_CODE && grep -q "Assertion failure" output
 
     steps:
     - name: Checkout code
@@ -109,7 +119,13 @@ jobs:
       run: |
         set -x
         apt update
-        apt install -y build-essential pkg-config make git curl
+        apt install -y build-essential # pkg-config make git curl
+        # Add container lfortran to PATH:
+        if test "$FC" = "lfortran"; then \
+          echo "/app/bin" >> "$GITHUB_PATH" ; \
+          ls -alh /app/bin ; \
+          ls -alh /app/share/lfortran/lib/ ; \
+        fi
 
     - name: Install macOS Dependencies
       if: contains(matrix.os, 'macos') && matrix.compiler == 'flang'
@@ -162,8 +178,9 @@ jobs:
 
     - name: Version info
       run: |
-        set -x
         echo == TOOL VERSIONS ==
+        echo PATH="$PATH"
+        set -x
         uname -a
         if test -r /etc/os-release ; then cat /etc/os-release ; fi
         ${FPM_FC} --version
@@ -178,22 +195,20 @@ jobs:
         fpm run  --example invoke-via-macro   ${FPM_FLAGS} --flag "$FFLAGS"
 
     - name: Build and Test (Assertions ON)
-      env:
-        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERTIONS
       run: |
         set -x
-                   fpm test                             ${FPM_FLAGS} --flag "$FFLAGS"
-        ( set +e ; fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example simple-assertions ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS" ; test $? = $ERROR_STOP_CODE )
+                   fpm test                             ${FPM_FLAGS} --flag "$FFLAGS" --flag -DASSERTIONS
+        ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
+        ( set +e ; eval fpm run  --example simple-assertions ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
+        ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
 
     - name: Test Assertions w/ Parallel Callbacks
-      if: ${{ matrix.compiler != 'lfortran' }} # issue #68
+      if: ${{ matrix.compiler != 'lfortran' || matrix.version == 'latest' }} # issue #68
       env:
         FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERT_MULTI_IMAGE --flag -DASSERT_PARALLEL_CALLBACKS
       run: |
         set -x
         fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS"
-        ( set +e ; fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS -DASSERTIONS" ; test $? = $ERROR_STOP_CODE )
-        ( set +e ; fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS -DASSERTIONS" ; test $? = $ERROR_STOP_CODE )
+        ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
+        ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
