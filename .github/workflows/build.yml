@@ -71,12 +71,25 @@ jobs:
 
           # --- Intel coverage ---
 
+          # https://hub.docker.com/r/intel/fortran-essentials/tags
+          - os: ubuntu-24.04
+            compiler: ifx
+            version: latest
+            error_stop_code: 128
+            container: intel/fortran-essentials:latest
+
+          - os: ubuntu-24.04
+            compiler: ifx
+            version: 2025.2.0
+            error_stop_code: 128
+            container: intel/fortran-essentials:2025.2.0-0-devel-ubuntu24.04
+
           - os: ubuntu-24.04
             compiler: ifx
             version: 2025.1.0
             error_stop_code: 128
             container: intel/fortran-essentials:2025.1.0-0-devel-ubuntu24.04
-            #container: intel/oneapi-hpckit:2025.1.0-0-devel-ubuntu24.04
+
           - os: ubuntu-22.04
             compiler: ifx
             version: 2025.0.0
@@ -90,6 +103,16 @@ jobs:
             compiler: lfortran
             version: 0.54.0
             container: phhargrove/lfortran:0.54.0-1
+
+          - os: ubuntu-24.04
+            compiler: lfortran
+            version: 0.55.0
+            container: phhargrove/lfortran:0.55.0-1
+
+          - os: ubuntu-24.04
+            compiler: lfortran
+            version: 0.56.0
+            container: phhargrove/lfortran:0.56.0-1
 
           # https://github.com/lfortran/lfortran/pkgs/container/lfortran
           - os: ubuntu-22.04
