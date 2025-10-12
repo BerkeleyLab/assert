@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13, macos-14, macos-15, ubuntu-24.04]
+        os: [macos-13, macos-14, macos-15, macos-15-intel, ubuntu-24.04]
         compiler: [ gfortran ]
         version: [ 12, 13, 14, 15 ]
         extra_flags: [ -g ]
@@ -33,6 +33,9 @@ jobs:
             compiler: flang
             version: 21
           - os: macos-15
+            compiler: flang
+            version: 21
+          - os: macos-15-intel
             compiler: flang
             version: 21
 
