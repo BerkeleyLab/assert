@@ -189,14 +189,12 @@ jobs:
 
     - name: Setup FPM
       uses: fortran-lang/setup-fpm@main
-      if: ${{ !contains(matrix.os, 'macos') || matrix.os == 'macos-13' }}
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         fpm-version: latest
 
     - name: Build FPM
-      # no macos-arm64 fpm distro, build from source
-      if: ${{ contains(matrix.os, 'macos') && matrix.os != 'macos-13' }}
+      if: false
       run: |
         set -x
         curl --retry 5 -LOsS https://github.com/fortran-lang/fpm/releases/download/v0.11.0/fpm-0.11.0.F90
