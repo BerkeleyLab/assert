@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13, macos-14, macos-15, ubuntu-24.04]
+        os: [macos-13, macos-14, macos-15, macos-15-intel, ubuntu-24.04]
         compiler: [ gfortran ]
         version: [ 12, 13, 14, 15 ]
         extra_flags: [ -g ]
@@ -29,13 +29,13 @@ jobs:
 
           # --- LLVM flang coverage ---
 
-          - os: macos-13
-            compiler: flang
-            version: 21
           - os: macos-14
             compiler: flang
             version: 21
           - os: macos-15
+            compiler: flang
+            version: 21
+          - os: macos-15-intel
             compiler: flang
             version: 21
 
@@ -189,14 +189,12 @@ jobs:
 
     - name: Setup FPM
       uses: fortran-lang/setup-fpm@main
-      if: ${{ !contains(matrix.os, 'macos') || matrix.os == 'macos-13' }}
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         fpm-version: latest
 
     - name: Build FPM
-      # no macos-arm64 fpm distro, build from source
-      if: ${{ contains(matrix.os, 'macos') && matrix.os != 'macos-13' }}
+      if: false
       run: |
         set -x
         curl --retry 5 -LOsS https://github.com/fortran-lang/fpm/releases/download/v0.11.0/fpm-0.11.0.F90
@@ -207,12 +205,15 @@ jobs:
     - name: Version info
       run: |
         echo == TOOL VERSIONS ==
-        echo PATH="$PATH"
-        set -x
+        echo Platform version info:
         uname -a
-        if test -r /etc/os-release ; then cat /etc/os-release ; fi
-        ${FPM_FC} --version
-        fpm --version
+        if test -r /etc/os-release ; then grep -e NAME -e VERSION /etc/os-release  ; fi
+        if test -x /usr/bin/sw_vers ; then /usr/bin/sw_vers ; fi
+        echo
+        echo PATH="$PATH"
+        for tool in ${FPM_FC} fpm ; do
+          ( echo ; set -x ; w=$(which $tool) ; ls -al $w ; ls -alhL $w ; $tool --version )
+        done
 
     - name: Build and Test (Assertions OFF)
       run: |
