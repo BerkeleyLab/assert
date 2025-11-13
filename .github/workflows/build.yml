@@ -110,6 +110,16 @@ jobs:
             version: 0.56.0
             container: phhargrove/lfortran:0.56.0-1
 
+          - os: ubuntu-24.04
+            compiler: lfortran
+            version: 0.57.0
+            container: phhargrove/lfortran:0.57.0-1
+
+          - os: ubuntu-24.04
+            compiler: lfortran
+            version: 0.58.0
+            container: phhargrove/lfortran:0.58.0-1
+
           # https://github.com/lfortran/lfortran/pkgs/container/lfortran
           - os: ubuntu-22.04
             compiler: lfortran
