@@ -151,6 +151,9 @@ contains
         ! workaround a defect observed in LFortran 0.54:
         ! error stop with an allocatable character argument prints garbage
         error stop message//'', QUIET=.false.
+#elif __GNUC__ && __GNUC__ < 12
+        ! old GFortran lacks the QUIET optional arg added in F2018
+        error stop message
 #else
         error stop message, QUIET=.false.
 #endif
