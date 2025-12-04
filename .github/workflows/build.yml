@@ -19,6 +19,16 @@ jobs:
         extra_flags: [ -g ]
 
         include:
+          - os: ubuntu-24.04
+            compiler: gfortran
+            version:  9
+          - os: ubuntu-24.04
+            compiler: gfortran
+            version:  10
+          - os: ubuntu-24.04
+            compiler: gfortran
+            version:  11
+
           - os: ubuntu-22.04
             compiler: gfortran
             version: 12 # no package available for gfortran 13+
@@ -145,9 +155,9 @@ jobs:
       run: |
         set -x
         sudo apt update
-        # sudo apt list -a 'gfortran-*'
+        #sudo apt list -a 'gfortran-*'
         sudo apt install -y build-essential
-        if [[ ${COMPILER_VERSION} < 15 ]] ; then \
+        if (( ${COMPILER_VERSION} < 15 )) ; then \
           sudo apt install -y gfortran-${COMPILER_VERSION} ; \
         else \
           curl -L https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o install-homebrew.sh ; \
