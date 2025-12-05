@@ -45,8 +45,8 @@ Use Cases
 ---------
 Two common use cases include
 
-1. [Supporting output in pure procedures] for debugging purposes.
-2. [Enforcing programming contracts] throughout a project via runtime checks.
+1. [Supporting output in pure procedures](#supporting-output-in-pure-procedures) for debugging purposes.
+2. [Enforcing programming contracts](#enforcing-programming-contracts) throughout a project via runtime checks.
 
 ### Supporting output in pure procedures
 Writing pure procedures communicates useful information to a compiler or a developer.
