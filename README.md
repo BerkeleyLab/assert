@@ -79,12 +79,30 @@ See the [./example](./example) subdirectory.
 Building and Testing
 --------------------
 
+- [General Build Knobs](#general-build-knobs)
 - [Cray Compiler Environment (CCE) `ftn`](#cray-compiler-environment-cce-ftn)
 - [GNU Compiler Collection (GCC) `gfortran`](#gnu-compiler-collection-gcc-gfortran))
 - [Intel `ifx`](#intel-ifx))
 - [LFortran `lfortran`](#lfortran-lfortran)
 - [LLVM `flang-new`](#llvm-flang-new)
 - [Numerical Algorithms Group (NAG) `nagfor`](#numerical-algorithms-group-nag-nagfor)
+
+### General Build Knobs
+
+The following build-time preprocessor knobs can be used to control the behavior of Assert.
+When using `fpm` to build, these boolean flags can be passed on the command-line
+using syntax like: `fpm --flag "-DASSERTIONS=1"`
+
+* `ASSERTIONS` : Controls the whether assertions are checked/enforced at runtime. 
+   The default is 0 (assertions disabled). Assertions can be enabled using `-DASSERTIONS=1`.
+
+* `ASSERT_MULTI_IMAGE`: Controls whether the library attempts to use multi-image 
+   Fortran features (e.g. to report the image number of an assertion failure).
+   The default is compiler-specific. Multi-image support can be disabled using
+   `-DASSERT_MULTI_IMAGE=0`.
+
+* `ASSERT_PARALLEL_CALLBACKS`: Controls the use of a callback interface for
+   multi-process features. Contact us for more details.
 
 ### Cray Compiler Environment (CCE) `ftn`
 Because `fpm` uses the compiler name to determine the compiler identity and because
