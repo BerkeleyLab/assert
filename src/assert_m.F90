@@ -117,8 +117,8 @@ contains
             end block
           else
             location = location // '<unknown>'
-          endif
-        endif
+          end if
+        end if
 
 #if ASSERT_MULTI_IMAGE
 #  if ASSERT_PARALLEL_CALLBACKS
@@ -126,7 +126,7 @@ contains
           me = assert_this_image()
         else
           me = 0
-        endif
+        end if
 #  else
         me = this_image()
 #  endif
@@ -145,7 +145,7 @@ contains
           call assert_error_stop(message)
         else
           ; ! deliberate fall-thru
-        endif
+        end if
 #endif
 #ifdef __LFORTRAN__
         ! workaround a defect observed in LFortran 0.54:
