@@ -58,8 +58,11 @@ jobs:
           # https://hub.docker.com/r/phhargrove/llvm-flang/tags
           - os: ubuntu-24.04
             compiler: flang
+            version: 22
+            container: phhargrove/llvm-flang:22.1.0-latest
+          - os: ubuntu-24.04
+            compiler: flang
             version: 21
-            network: smp
             container: phhargrove/llvm-flang:21.1.0-latest
           - os: ubuntu-24.04
             compiler: flang
@@ -217,6 +220,7 @@ jobs:
         elif test "$FC" = "lfortran" ; then \
           echo "FPM_FC=lfortran" >> "$GITHUB_ENV" ; \
           echo "FFLAGS=--cpp $FFLAGS" >> "$GITHUB_ENV" ; \
+          echo "FPM_FLAGS=--profile debug --verbose" >> "$GITHUB_ENV" ; : fpm 0.13 workaround ; \
         else \
           echo "FPM_FC=gfortran-${COMPILER_VERSION}" >> "$GITHUB_ENV" ; \
           echo "FFLAGS=-ffree-line-length-0 $FFLAGS" >> "$GITHUB_ENV" ; \
