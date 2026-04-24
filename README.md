@@ -317,7 +317,7 @@ A few packages that use Assert include
 
 Legal Information
 -----------------
-See the [LICENSE](LICENSE) file for copyright and licensing information.
+See the [LICENSE.txt](LICENSE.txt) file for copyright and licensing information.
 
 [Hyperlinks]:#
 [OpenCoarrays]: https://github.com/sourceryinstitute/opencoarrays
