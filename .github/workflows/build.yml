@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: bash
+        shell: bash --noprofile --norc -e -x -o pipefail {0}
     strategy:
       fail-fast: false
       matrix:
@@ -216,7 +216,6 @@ jobs:
     - name: Install Ubuntu Native Dependencies
       if: ${{ contains(matrix.os, 'ubuntu') && matrix.container == '' && matrix.compiler == 'gfortran' }}
       run: |
-        set -x
         sudo apt update
         #sudo apt list -a 'gfortran-*'
         sudo apt install -y build-essential
@@ -241,7 +240,6 @@ jobs:
     - name: Install Ubuntu Container Dependencies
       if: ${{ contains(matrix.os, 'ubuntu') && matrix.container != '' && !contains(matrix.container, 'phhargrove') }}
       run: |
-        set -x
         apt update
         apt install -y build-essential # pkg-config make git curl
         # Add container lfortran to PATH:
@@ -254,7 +252,6 @@ jobs:
     - name: Install macOS Dependencies
       if: contains(matrix.os, 'macos')
       run: |
-        set -x
         brew update
         # fpm binary distribution for macOS requires gfortran shared libraries from gcc@12
         brew install gcc@12
@@ -262,7 +259,6 @@ jobs:
     - name: Install LLVM flang on macOS
       if: contains(matrix.os, 'macos') && matrix.compiler == 'flang'
       run: |
-        set -x
         brew install llvm@${COMPILER_VERSION} flang
         # workaround issue #228: clang cannot find homebrew flang's C header
         for p in /opt/homebrew /usr/local $(brew --prefix) ; do find $p/Cellar/flang -name ISO_Fortran_binding.h 2>/dev/null || true ; done
@@ -272,7 +268,6 @@ jobs:
 
     - name: Setup Compilers
       run: |
-        set -x
         if test "$FC" = "flang" ; then \
           echo "FPM_FC=flang-new" >> "$GITHUB_ENV" ; \
         elif test "$FC" = "ifx" ; then \
@@ -303,7 +298,6 @@ jobs:
     - name: Build FPM
       if: false
       run: |
-        set -x
         curl --retry 5 -LOsS https://github.com/fortran-lang/fpm/releases/download/v0.11.0/fpm-0.11.0.F90
         mkdir fpm-temp
         gfortran-14 -o fpm-temp/fpm fpm-0.11.0.F90
@@ -311,6 +305,7 @@ jobs:
 
     - name: Version info
       run: |
+        set +x
         echo == TOOL VERSIONS ==
         echo Platform version info:
         uname -a
@@ -324,7 +319,6 @@ jobs:
 
     - name: Build and Test (Assertions OFF)
       run: |
-        set -x
         fpm test                              ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example false-assertion    ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example simple-assertions  ${FPM_FLAGS} --flag "$FFLAGS"
@@ -332,8 +326,7 @@ jobs:
 
     - name: Build and Test (Assertions ON)
       run: |
-        set -x
-                   fpm test                             ${FPM_FLAGS} --flag "$FFLAGS" --flag -DASSERTIONS
+        fpm test                              ${FPM_FLAGS} --flag "$FFLAGS" --flag -DASSERTIONS
         ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
         ( set +e ; eval fpm run  --example simple-assertions ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
         ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
@@ -343,7 +336,6 @@ jobs:
       env:
         FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERT_MULTI_IMAGE --flag -DASSERT_PARALLEL_CALLBACKS
       run: |
-        set -x
         fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS"
         ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
