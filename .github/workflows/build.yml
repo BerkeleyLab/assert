@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: bash
+        shell: bash --noprofile --norc -e -x -o pipefail {0}
     strategy:
       fail-fast: false
       matrix:
@@ -101,38 +101,32 @@ jobs:
           - os: ubuntu-24.04
             compiler: ifx
             version: latest
-            error_stop_code: 128
             container: intel/oneapi-toolkit:latest
 
           - os: ubuntu-24.04
             compiler: ifx
             version: 2026.0.0
-            error_stop_code: 128
             container: intel/oneapi-toolkit:2026.0.0-devel-ubuntu24.04
 
           # https://hub.docker.com/r/intel/fortran-essentials/tags
           - os: ubuntu-24.04
             compiler: ifx
             version: 2025.3.0
-            error_stop_code: 128
             container: intel/fortran-essentials:2025.3.0-0-devel-ubuntu24.04
 
           - os: ubuntu-24.04
             compiler: ifx
             version: 2025.2.0
-            error_stop_code: 128
             container: intel/fortran-essentials:2025.2.0-0-devel-ubuntu24.04
 
           - os: ubuntu-24.04
             compiler: ifx
             version: 2025.1.0
-            error_stop_code: 128
             container: intel/fortran-essentials:2025.1.0-0-devel-ubuntu24.04
 
           - os: ubuntu-22.04
             compiler: ifx
             version: 2025.0.0
-            error_stop_code: 128
             container: intel/fortran-essentials:2025.0.0-0-devel-ubuntu22.04 
 
           # --- LFortran coverage ---
@@ -216,45 +210,42 @@ jobs:
     - name: Install Ubuntu Native Dependencies
       if: ${{ contains(matrix.os, 'ubuntu') && matrix.container == '' && matrix.compiler == 'gfortran' }}
       run: |
-        set -x
         sudo apt update
         #sudo apt list -a 'gfortran-*'
         sudo apt install -y build-essential
-        if (( ${COMPILER_VERSION} < 15 )) ; then \
-          sudo apt install -y gfortran-${COMPILER_VERSION} ; \
-        else \
-          curl -L https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o install-homebrew.sh ; \
-          chmod +x install-homebrew.sh ; \
-          env CI=1 ./install-homebrew.sh ; \
-          HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew" ; \
-          ${HOMEBREW_PREFIX}/bin/brew install -v gcc@${COMPILER_VERSION} binutils ; \
-          ls -al ${HOMEBREW_PREFIX}/bin ; \
-          echo "PATH=${HOMEBREW_PREFIX}/bin:${PATH}" >> "$GITHUB_ENV" ; \
-          : Homebrew GCC@15 needs binutils 2.44+ ; \
-          HOMEBREW_BINUTILS=$(ls -d ${HOMEBREW_PREFIX}/Cellar/binutils/2.*/bin ) ; \
-          ls -al ${HOMEBREW_BINUTILS} ; \
-          echo "FFLAGS=$FFLAGS -B ${HOMEBREW_BINUTILS}" >> "$GITHUB_ENV" ; \
-          echo "CFLAGS=$CFLAGS -B ${HOMEBREW_BINUTILS}" >> "$GITHUB_ENV" ; \
-          echo "CXXFLAGS=$CXXFLAGS -B ${HOMEBREW_BINUTILS}" >> "$GITHUB_ENV" ; \
+        if (( ${COMPILER_VERSION} < 15 )) ; then
+          sudo apt install -y gfortran-${COMPILER_VERSION}
+        else
+          curl -L https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o install-homebrew.sh
+          chmod +x install-homebrew.sh
+          env CI=1 ./install-homebrew.sh
+          HOMEBREW_PREFIX="/home/linuxbrew/.linuxbrew"
+          ${HOMEBREW_PREFIX}/bin/brew install -v gcc@${COMPILER_VERSION} binutils
+          ls -al ${HOMEBREW_PREFIX}/bin
+          echo "PATH=${HOMEBREW_PREFIX}/bin:${PATH}" >> "$GITHUB_ENV"
+          : Homebrew GCC@15 needs binutils 2.44+
+          HOMEBREW_BINUTILS=$(ls -d ${HOMEBREW_PREFIX}/Cellar/binutils/2.*/bin )
+          ls -al ${HOMEBREW_BINUTILS}
+          echo "FFLAGS=$FFLAGS -B ${HOMEBREW_BINUTILS}" >> "$GITHUB_ENV"
+          echo "CFLAGS=$CFLAGS -B ${HOMEBREW_BINUTILS}" >> "$GITHUB_ENV"
+          echo "CXXFLAGS=$CXXFLAGS -B ${HOMEBREW_BINUTILS}" >> "$GITHUB_ENV"
         fi
 
     - name: Install Ubuntu Container Dependencies
       if: ${{ contains(matrix.os, 'ubuntu') && matrix.container != '' && !contains(matrix.container, 'phhargrove') }}
       run: |
-        set -x
         apt update
         apt install -y build-essential # pkg-config make git curl
         # Add container lfortran to PATH:
-        if test "$FC" = "lfortran"; then \
-          echo "/app/bin" >> "$GITHUB_PATH" ; \
-          ls -alh /app/bin ; \
-          ls -alh /app/share/lfortran/lib/ ; \
+        if test "$FC" = "lfortran"; then
+          echo "/app/bin" >> "$GITHUB_PATH"
+          ls -alh /app/bin
+          ls -alh /app/share/lfortran/lib/
         fi
 
     - name: Install macOS Dependencies
       if: contains(matrix.os, 'macos')
       run: |
-        set -x
         brew update
         # fpm binary distribution for macOS requires gfortran shared libraries from gcc@12
         brew install gcc@12
@@ -262,7 +253,6 @@ jobs:
     - name: Install LLVM flang on macOS
       if: contains(matrix.os, 'macos') && matrix.compiler == 'flang'
       run: |
-        set -x
         brew install llvm@${COMPILER_VERSION} flang
         # workaround issue #228: clang cannot find homebrew flang's C header
         for p in /opt/homebrew /usr/local $(brew --prefix) ; do find $p/Cellar/flang -name ISO_Fortran_binding.h 2>/dev/null || true ; done
@@ -272,27 +262,24 @@ jobs:
 
     - name: Setup Compilers
       run: |
-        set -x
-        if test "$FC" = "flang" ; then \
-          echo "FPM_FC=flang-new" >> "$GITHUB_ENV" ; \
-        elif test "$FC" = "ifx" ; then \
-          echo "FPM_FC=ifx" >> "$GITHUB_ENV" ; \
-        elif test "$FC" = "lfortran" ; then \
-          echo "FPM_FC=lfortran" >> "$GITHUB_ENV" ; \
-          echo "FFLAGS=--cpp $FFLAGS" >> "$GITHUB_ENV" ; \
-          echo "FPM_FLAGS=--profile debug --verbose" >> "$GITHUB_ENV" ; : fpm 0.13 workaround ; \
-        else \
-          echo "FPM_FC=gfortran-${COMPILER_VERSION}" >> "$GITHUB_ENV" ; \
-          echo "FFLAGS=-ffree-line-length-0 $FFLAGS" >> "$GITHUB_ENV" ; \
+        ERROR_STOP_CODE=${{ matrix.error_stop_code || 1}}
+        if test "$FC" = "flang" ; then
+          echo "FPM_FC=flang-new" >> "$GITHUB_ENV"
+        elif test "$FC" = "ifx" ; then
+          ERROR_STOP_CODE=128
+          echo "FPM_FC=ifx" >> "$GITHUB_ENV"
+        elif test "$FC" = "lfortran" ; then
+          echo "FPM_FC=lfortran" >> "$GITHUB_ENV"
+          echo "FFLAGS=--cpp $FFLAGS" >> "$GITHUB_ENV"
+          echo "FPM_FLAGS=--profile debug --verbose" >> "$GITHUB_ENV" ; : fpm 0.13 workaround
+        else
+          echo "FPM_FC=gfortran-${COMPILER_VERSION}" >> "$GITHUB_ENV"
+          echo "FFLAGS=-ffree-line-length-0 $FFLAGS" >> "$GITHUB_ENV"
         fi
-        if [[ "${{ matrix.container }}" =~ "snowstep/llvm" ]] ; then \
-          echo "LD_LIBRARY_PATH=/usr/lib/llvm-22/lib:$LD_LIBRARY_PATH" >> "$GITHUB_ENV" ; \
+        if [[ "${{ matrix.container }}" =~ "snowstep/llvm" ]] ; then
+          echo "LD_LIBRARY_PATH=/usr/lib/llvm-22/lib:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
         fi
-        if test -n "${{ matrix.error_stop_code }}" ; then \
-          echo "ERROR_STOP_CODE=${{ matrix.error_stop_code }}" >> "$GITHUB_ENV" ; \
-        else \
-          echo "ERROR_STOP_CODE=1" >> "$GITHUB_ENV" ; \
-        fi
+        echo "ERROR_STOP_CODE=${ERROR_STOP_CODE}" >> "$GITHUB_ENV"
 
     - name: Setup FPM
       uses: fortran-lang/setup-fpm@main
@@ -303,7 +290,6 @@ jobs:
     - name: Build FPM
       if: false
       run: |
-        set -x
         curl --retry 5 -LOsS https://github.com/fortran-lang/fpm/releases/download/v0.11.0/fpm-0.11.0.F90
         mkdir fpm-temp
         gfortran-14 -o fpm-temp/fpm fpm-0.11.0.F90
@@ -311,6 +297,7 @@ jobs:
 
     - name: Version info
       run: |
+        set +x
         echo == TOOL VERSIONS ==
         echo Platform version info:
         uname -a
@@ -324,7 +311,6 @@ jobs:
 
     - name: Build and Test (Assertions OFF)
       run: |
-        set -x
         fpm test                              ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example false-assertion    ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example simple-assertions  ${FPM_FLAGS} --flag "$FFLAGS"
@@ -332,8 +318,7 @@ jobs:
 
     - name: Build and Test (Assertions ON)
       run: |
-        set -x
-                   fpm test                             ${FPM_FLAGS} --flag "$FFLAGS" --flag -DASSERTIONS
+        fpm test                              ${FPM_FLAGS} --flag "$FFLAGS" --flag -DASSERTIONS
         ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
         ( set +e ; eval fpm run  --example simple-assertions ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
         ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
@@ -343,7 +328,6 @@ jobs:
       env:
         FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERT_MULTI_IMAGE --flag -DASSERT_PARALLEL_CALLBACKS
       run: |
-        set -x
         fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS"
         ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
