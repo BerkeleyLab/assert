@@ -176,17 +176,13 @@ fpm test --compiler lfortran --profile release --flag --cpp
 #### Single-image (serial) execution
 With `nagfor` version 7.1 or later, use
 ```
-fpm test --compiler nagfor --flag -fpp
+fpm test --compiler nagfor -DASSERTIONS
 ```
 
 #### Multi-image execution
-With `nagfor` 7.1, use
+With `nagfor` 7.1 or later, use
 ```
-fpm test --compiler nagfor --profile release --flag "-fpp -coarray=cosmp -f2018 -DASSERT_MULTI_IMAGE"
-```
-With `nagfor` 7.2 or later, use
-```
-fpm test --compiler nagfor --flag "-fpp -DASSERT_MULTI_IMAGE"
+fpm test --compiler nagfor --flag -DASSERT_MULTI_IMAGE
 ```
 
 Documentation
