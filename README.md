@@ -34,7 +34,7 @@ preprocessor ASSERTIONS to non-zero, e.g.,
 ```
 fpm build --flag "-DASSERTIONS"
 ```
-The program [example/invoke-via-macro.F90] demonstrates the preferred way to invoke assertions via the three provided macros. 
+The program [example/invoke-via-macro.F90] demonstrates the preferred way to invoke assertions via the provided macros. 
 Invoking assertions this way ensures such calls will be completely removed whenever the `ASSERTIONS` macro is undefined (or defined to zero) during compilation.
 Due to a limitation of `fpm`, this approach works best if the project using Assert is also a `fpm` project.
 If instead `fpm install` is used, then either the user must copy `include/assert_macros.h` to the installation directory (default: `~/.local/include`) or 
@@ -84,7 +84,7 @@ Building and Testing
 - [GNU Compiler Collection (GCC) `gfortran`](#gnu-compiler-collection-gcc-gfortran))
 - [Intel `ifx`](#intel-ifx))
 - [LFortran `lfortran`](#lfortran-lfortran)
-- [LLVM `flang-new`](#llvm-flang-new)
+- [LLVM `flang`](#llvm-flang)
 - [Numerical Algorithms Group (NAG) `nagfor`](#numerical-algorithms-group-nag-nagfor)
 
 ### General Build Knobs
@@ -100,10 +100,17 @@ using syntax like: `fpm --flag "-DASSERTIONS=1"`
    Fortran features (e.g. to report the image number of an assertion failure).
    Default is disabled, multi-image support can be enabled using `-DASSERT_MULTI_IMAGE`.
 
-### Cray Compiler Environment (CCE) `ftn`
-Because `fpm` uses the compiler name to determine the compiler identity and because
-CCE provides one compiler wrapper, `ftn`, for invoking all compilers, you will
-need to invoke `ftn` in a shell script named to identify CCE compiler. For example,
+### Cray Compiler Environment (CCE) `crayftn`
+
+The simplest way to compile with CCE is to invoke the Cray compiler
+directly:
+```
+fpm test --compiler crayftn --profile release
+```
+
+If instead you prefer to use the Cray PE compiler wrappers, note that `fpm` uses
+the compiler name to determine the compiler identity, so you will
+need to invoke `ftn` in a shell script named to identify the CCE compiler. For example,
 place a script named `crayftn.sh` in your path with the following contents and with
 executable privileges set appropriately:
 ```
@@ -234,15 +241,15 @@ In the case of gfortran, this appears to have been resolved by default starting 
 #### Line breaks in macro invocations
 
 The preprocessor is not currently specified by any Fortran standard, and
-as of 2025 its operation differs in subtle ways between compilers.
+as of 2026 its operation differs in subtle ways between compilers.
 One way in which compilers differ is how macro invocations can safely be broken
 across multiple lines.
 
-For example, gfortran and flang-new both accept backslash `\` continuation
+For example, GNU `gfortran` and LLVM `flang` both accept backslash `\` continuation
 character for line-breaks in a macro invocation:
 
 ```fortran
-! OK for flang-new and gfortran
+! OK for flang and gfortran
 call_assert_describe( computed_checksum == expected_checksum, \
                       "Checksum mismatch failure!" \
                     )                  
@@ -268,7 +275,7 @@ Fortran does not support comments with an end delimiter,
 only to-end-of-line comments.  As such, there is no portable way to safely insert a
 Fortran comment into the middle of a macro invocation.  For example, the
 following seemingly reasonable code results in a syntax error
-after macro expansion (on gfortran and flang-new):
+after macro expansion (on gfortran and flang):
 
 ```fortran
 ! INCORRECT: cannot use Fortran comments inside macro invocation
