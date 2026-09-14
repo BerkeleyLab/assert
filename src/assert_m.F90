@@ -69,14 +69,14 @@ module assert_m
 
 contains
 
-    pure subroutine assert(assertion, description)
-      !! If assertion is .false. and enforcement is enabled (e.g. via -DASSERTIONS=1),
-      !! then error-terminate with a character stop code that contains the description argument if present
-      implicit none
-      logical, intent(in) :: assertion
-        !! Most assertions will be expressions such as i>0
-      character(len=*), intent(in) :: description
-        !! A brief statement of what is being asserted such as "i>0" or "positive i"
+  pure subroutine assert(assertion, description)
+    !! If assertion is .false. and enforcement is enabled (e.g. via -DASSERTIONS=1),
+    !! then error-terminate with a character stop code that contains the description argument if present
+    implicit none
+    logical, intent(in) :: assertion
+      !! Most assertions will be expressions such as i>0
+    character(len=*), intent(in) :: description
+      !! A brief statement of what is being asserted such as "i>0" or "positive i"
 
     toggle_assertions: &
     if (enforce_assertions) then
@@ -85,38 +85,38 @@ contains
     
   end subroutine
 
-    pure subroutine assert_always(assertion, description, file, line)
-      !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
-      implicit none
-      logical, intent(in) :: assertion
-      character(len=*), intent(in) :: description
-      character(len=*), intent(in), optional :: file
-      integer, intent(in), optional :: line
+  pure subroutine assert_always(assertion, description, file, line)
+    !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
+    implicit none
+    logical, intent(in) :: assertion
+    character(len=*), intent(in) :: description
+    character(len=*), intent(in), optional :: file
+    integer, intent(in), optional :: line
+
     character(len=:), allocatable :: message
     character(len=:), allocatable :: location
     integer me
 
-      check_assertion: &
-      if (.not. assertion) then
-        ! Avoid harmless warnings from Cray Fortran:
-        allocate(character(len=0)::message)
-        allocate(character(len=0)::location)
+    check_assertion: &
+    if (.not. assertion) then
+      ! Avoid harmless warnings from Cray Fortran:
+      allocate(character(len=0)::message)
+      allocate(character(len=0)::location)
 
-
-        ! format source location, if known
-        location = ''
-        if (present(file)) then
-          location = ' at ' // file // ':'
-          if (present(line)) then ! only print line number if file is also known
-            block
-              character(len=128) line_str
-              write(line_str, '(i0)') line
-              location = location // trim(adjustl(line_str))
-            end block
-          else
-            location = location // '<unknown>'
-          end if
+      ! format source location, if known
+      location = ''
+      if (present(file)) then
+        location = ' at ' // file // ':'
+        if (present(line)) then ! only print line number if file is also known
+          block
+            character(len=128) line_str
+            write(line_str, '(i0)') line
+            location = location // trim(adjustl(line_str))
+          end block
+        else
+          location = location // '<unknown>'
         end if
+      end if
 
 #   if ASSERT_MULTI_IMAGE
       me = this_image()
@@ -130,27 +130,27 @@ contains
         block
           character(len=128) image_number
           write(image_number, *) me
-          message = 'Assertion failure on image ' // trim(adjustl(image_number)) // location // ': ' // description
+          message = 'Assertion failure on image ' // trim(adjustl(image_number)) &
+                      // location // ': ' // description
         end block
-        else
-          message = 'Assertion failure' // location // ': ' // description
-        end if
- 
-        if (associated(assert_error_stop)) then
-          call assert_error_stop(message)
-        end if
-#ifdef __LFORTRAN__
-        ! workaround a defect observed in LFortran 0.54:
-        ! error stop with an allocatable character argument prints garbage
-        error stop message//'', QUIET=.false.
-#elif __GNUC__ && __GNUC__ < 12
-        ! old GFortran lacks the QUIET optional arg added in F2018
-        error stop message
-#else
-        error stop message, QUIET=.false.
-#endif
+      else
+        message = 'Assertion failure' // location // ': ' // description
+      end if
 
-      end if check_assertion
+      if (associated(assert_error_stop)) then
+        call assert_error_stop(message)
+      end if
+#ifdef __LFORTRAN__
+      ! workaround a defect observed in LFortran 0.54:
+      ! error stop with an allocatable character argument prints garbage
+      error stop message//'', QUIET=.false.
+#elif __GNUC__ && __GNUC__ < 12
+      ! old GFortran lacks the QUIET optional arg added in F2018
+      error stop message
+#else
+      error stop message, QUIET=.false.
+#endif
+    end if check_assertion
 
   end subroutine
 
