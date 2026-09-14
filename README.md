@@ -98,8 +98,7 @@ using syntax like: `fpm --flag "-DASSERTIONS=1"`
 
 * `ASSERT_MULTI_IMAGE`: Controls whether the library attempts to use multi-image 
    Fortran features (e.g. to report the image number of an assertion failure).
-   The default is compiler-specific. Multi-image support can be disabled using
-   `-DASSERT_MULTI_IMAGE=0`.
+   Default is disabled, multi-image support can be enabled using `-DASSERT_MULTI_IMAGE`.
 
 ### Cray Compiler Environment (CCE) `ftn`
 Because `fpm` uses the compiler name to determine the compiler identity and because
@@ -133,11 +132,11 @@ The above commands build the Assert library (with the default of assertion enfor
 #### Multi-image (parallel) execution
 With `gfortran` 14 or later versions and OpenCoarrays installed, use
 ```
-fpm test --compiler caf --profile release --runner "cafrun -n 2"
+fpm test --compiler caf --profile release --runner "cafrun -n 2" --flag -DASSERT_MULTI_IMAGE
 ```
 With `gfortran` 13 or earlier versions and OpenCoarrays installed,
 ```
-fpm test --compiler caf --profile release --runner "cafrun -n 2" --flag "-ffree-line-length-0"
+fpm test --compiler caf --profile release --runner "cafrun -n 2" --flag "-DASSERT_MULTI_IMAGE -ffree-line-length-0"
 ```
 
 ### Intel `ifx`
@@ -153,16 +152,16 @@ With Intel Fortran and Intel MPI installed,
 fpm test --compiler ifx --profile release --flag "-coarray -DASSERT_MULTI_IMAGE"
 ```
 
-### LLVM `flang-new`
+### LLVM `flang`
 
 #### Single-image (serial) execution
-With `flang-new` version 19, use
+With LLVM Flang version 19, use
 ```
 fpm test --compiler flang-new --flag "-mmlir -allow-assumed-rank -O3"
 ```
-With `flang-new` version 20 or later, use
+With LLVM Flang version 20 or later, use
 ```
-fpm test --compiler flang-new --flag "-O3"
+fpm test --compiler flang --flag "-O3"
 ```
 
 ### LFortran `lfortran`
@@ -183,11 +182,11 @@ fpm test --compiler nagfor --flag -fpp
 #### Multi-image execution
 With `nagfor` 7.1, use
 ```
-fpm test --compiler nagfor --profile release --flag "-fpp -coarray=cosmp -f2018"
+fpm test --compiler nagfor --profile release --flag "-fpp -coarray=cosmp -f2018 -DASSERT_MULTI_IMAGE"
 ```
 With `nagfor` 7.2 or later, use
 ```
-fpm test --compiler nagfor --flag -fpp
+fpm test --compiler nagfor --flag "-fpp -DASSERT_MULTI_IMAGE"
 ```
 
 Documentation

@@ -358,9 +358,20 @@ jobs:
 
     - name: Test Assertions w/ Parallel Callbacks
       env:
-        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERT_MULTI_IMAGE --flag -DTEST_PARALLEL_CALLBACKS
+        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DTEST_PARALLEL_CALLBACKS
       run: |
         fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS"
         ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
         ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
+
+    - name: Test Assertions w/ ASSERT_MULTI_IMAGE
+      if: matrix.compiler == 'gfortran' 
+      env:
+        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -fcoarray=single --flag -DASSERT_MULTI_IMAGE
+      run: |
+        fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS"
+        fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS"
+        ( set +e ; eval fpm run  --example false-assertion   ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
+        ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
+
