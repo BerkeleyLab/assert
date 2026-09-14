@@ -11,9 +11,4 @@
 #  endif
 #endif
 
-! Whether the library should use client callbacks for parallel features
-#ifndef ASSERT_PARALLEL_CALLBACKS
-#define ASSERT_PARALLEL_CALLBACKS 0
-#endif
-
 #endif

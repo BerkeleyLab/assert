@@ -143,13 +143,8 @@ jobs:
           # https://hub.docker.com/r/phhargrove/lfortran/tags
           - os: ubuntu-24.04
             compiler: lfortran
-            version: 0.54.0
-            container: phhargrove/lfortran:0.54.0-1
-
-#          - os: ubuntu-24.04
-#            compiler: lfortran
-#            version: 0.55.0
-#            container: phhargrove/lfortran:0.55.0-1
+            version: 0.55.0
+            container: phhargrove/lfortran:0.55.0-1
 #
 #          - os: ubuntu-24.04
 #            compiler: lfortran
@@ -362,9 +357,8 @@ jobs:
         ( set +e ; eval fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag \"$FFLAGS\" $CHECK_ASSERT )
 
     - name: Test Assertions w/ Parallel Callbacks
-      if: ${{ matrix.compiler != 'lfortran' || matrix.version != '0.54.0' }} # issue #68, fixed in 0.55
       env:
-        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERT_MULTI_IMAGE --flag -DASSERT_PARALLEL_CALLBACKS
+        FPM_FLAGS: ${{ env.FPM_FLAGS }} --flag -DASSERT_MULTI_IMAGE --flag -DTEST_PARALLEL_CALLBACKS
       run: |
         fpm run  --example false-assertion   ${FPM_FLAGS} --flag "$FFLAGS"
         fpm run  --example invoke-via-macro  ${FPM_FLAGS} --flag "$FFLAGS"

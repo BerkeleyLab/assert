@@ -37,27 +37,25 @@ module assert_m
   private
   public :: assert, assert_always
 
-#if ASSERT_PARALLEL_CALLBACKS
-    public :: assert_this_image_interface, assert_this_image
-    public :: assert_error_stop_interface, assert_error_stop
+  ! Parallel callbacks support
+  public :: assert_this_image_interface, assert_this_image
+  public :: assert_error_stop_interface, assert_error_stop
 
-    abstract interface
-      pure function assert_this_image_interface() result(this_image_id)
-        implicit none
-        integer :: this_image_id
-      end function
-    end interface
-    procedure(assert_this_image_interface), pointer :: assert_this_image
-    
-    abstract interface
-      pure subroutine assert_error_stop_interface(stop_code_char)
-        implicit none
-        character(len=*), intent(in) :: stop_code_char
-      end subroutine
-    end interface
-    procedure(assert_error_stop_interface), pointer :: assert_error_stop
-
-#endif
+  abstract interface
+    pure function assert_this_image_interface() result(this_image_id)
+      implicit none
+      integer :: this_image_id
+    end function
+  end interface
+  procedure(assert_this_image_interface), pointer :: assert_this_image
+  
+  abstract interface
+    pure subroutine assert_error_stop_interface(stop_code_char)
+      implicit none
+      character(len=*), intent(in) :: stop_code_char
+    end subroutine
+  end interface
+  procedure(assert_error_stop_interface), pointer :: assert_error_stop
 
 #ifndef USE_ASSERTIONS
 #  if ASSERTIONS
@@ -120,33 +118,27 @@ contains
           end if
         end if
 
-#if ASSERT_MULTI_IMAGE
-#  if ASSERT_PARALLEL_CALLBACKS
-        if (associated(assert_this_image)) then
-          me = assert_this_image()
+#   if ASSERT_MULTI_IMAGE
+      me = this_image()
+#   else
+      me = 0
+#   endif
+      if (associated(assert_this_image)) then
+        me = assert_this_image()
+      end if
+      if (me > 0) then
+        block
+          character(len=128) image_number
+          write(image_number, *) me
+          message = 'Assertion failure on image ' // trim(adjustl(image_number)) // location // ': ' // description
+        end block
         else
-          me = 0
+          message = 'Assertion failure' // location // ': ' // description
         end if
-#  else
-        me = this_image()
-#  endif
-   block
-        character(len=128) image_number
-        write(image_number, *) me
-        message = 'Assertion failure on image ' // trim(adjustl(image_number)) // location // ': ' // description
-   end block
-#else
-        message = 'Assertion failure' // location // ': ' // description
-        me = 0 ! avoid a harmless warning
-#endif
  
-#if ASSERT_PARALLEL_CALLBACKS
-        if (associated(assert_this_image)) then
+        if (associated(assert_error_stop)) then
           call assert_error_stop(message)
-        else
-          ; ! deliberate fall-thru
         end if
-#endif
 #ifdef __LFORTRAN__
         ! workaround a defect observed in LFortran 0.54:
         ! error stop with an allocatable character argument prints garbage

@@ -101,9 +101,6 @@ using syntax like: `fpm --flag "-DASSERTIONS=1"`
    The default is compiler-specific. Multi-image support can be disabled using
    `-DASSERT_MULTI_IMAGE=0`.
 
-* `ASSERT_PARALLEL_CALLBACKS`: Controls the use of a callback interface for
-   multi-process features. Contact us for more details.
-
 ### Cray Compiler Environment (CCE) `ftn`
 Because `fpm` uses the compiler name to determine the compiler identity and because
 CCE provides one compiler wrapper, `ftn`, for invoking all compilers, you will
