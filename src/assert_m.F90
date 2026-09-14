@@ -47,7 +47,7 @@ module assert_m
       integer :: this_image_id
     end function
   end interface
-  procedure(assert_this_image_interface), pointer :: assert_this_image
+  procedure(assert_this_image_interface), pointer :: assert_this_image => null()
   
   abstract interface
     pure subroutine assert_error_stop_interface(stop_code_char)
@@ -55,7 +55,7 @@ module assert_m
       character(len=*), intent(in) :: stop_code_char
     end subroutine
   end interface
-  procedure(assert_error_stop_interface), pointer :: assert_error_stop
+  procedure(assert_error_stop_interface), pointer :: assert_error_stop => null()
 
 #ifndef USE_ASSERTIONS
 #  if ASSERTIONS
