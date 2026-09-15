@@ -37,27 +37,25 @@ module assert_m
   private
   public :: assert, assert_always
 
-#if ASSERT_PARALLEL_CALLBACKS
-    public :: assert_this_image_interface, assert_this_image
-    public :: assert_error_stop_interface, assert_error_stop
+  ! Parallel callbacks support
+  public :: assert_this_image_interface, assert_this_image
+  public :: assert_error_stop_interface, assert_error_stop
 
-    abstract interface
-      pure function assert_this_image_interface() result(this_image_id)
-        implicit none
-        integer :: this_image_id
-      end function
-    end interface
-    procedure(assert_this_image_interface), pointer :: assert_this_image
-    
-    abstract interface
-      pure subroutine assert_error_stop_interface(stop_code_char)
-        implicit none
-        character(len=*), intent(in) :: stop_code_char
-      end subroutine
-    end interface
-    procedure(assert_error_stop_interface), pointer :: assert_error_stop
-
-#endif
+  abstract interface
+    pure function assert_this_image_interface() result(this_image_id)
+      implicit none
+      integer :: this_image_id
+    end function
+  end interface
+  procedure(assert_this_image_interface), pointer :: assert_this_image => null()
+  
+  abstract interface
+    pure subroutine assert_error_stop_interface(stop_code_char)
+      implicit none
+      character(len=*), intent(in) :: stop_code_char
+    end subroutine
+  end interface
+  procedure(assert_error_stop_interface), pointer :: assert_error_stop => null()
 
 #ifndef USE_ASSERTIONS
 #  if ASSERTIONS
@@ -71,14 +69,14 @@ module assert_m
 
 contains
 
-    pure subroutine assert(assertion, description)
-      !! If assertion is .false. and enforcement is enabled (e.g. via -DASSERTIONS=1),
-      !! then error-terminate with a character stop code that contains the description argument if present
-      implicit none
-      logical, intent(in) :: assertion
-        !! Most assertions will be expressions such as i>0
-      character(len=*), intent(in) :: description
-        !! A brief statement of what is being asserted such as "i>0" or "positive i"
+  pure subroutine assert(assertion, description)
+    !! If assertion is .false. and enforcement is enabled (e.g. via -DASSERTIONS=1),
+    !! then error-terminate with a character stop code that contains the description argument if present
+    implicit none
+    logical, intent(in) :: assertion
+      !! Most assertions will be expressions such as i>0
+    character(len=*), intent(in) :: description
+      !! A brief statement of what is being asserted such as "i>0" or "positive i"
 
     toggle_assertions: &
     if (enforce_assertions) then
@@ -87,78 +85,72 @@ contains
     
   end subroutine
 
-    pure subroutine assert_always(assertion, description, file, line)
-      !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
-      implicit none
-      logical, intent(in) :: assertion
-      character(len=*), intent(in) :: description
-      character(len=*), intent(in), optional :: file
-      integer, intent(in), optional :: line
+  pure subroutine assert_always(assertion, description, file, line)
+    !! Same as above but always enforces the assertion (regardless of ASSERTIONS)
+    implicit none
+    logical, intent(in) :: assertion
+    character(len=*), intent(in) :: description
+    character(len=*), intent(in), optional :: file
+    integer, intent(in), optional :: line
+
     character(len=:), allocatable :: message
     character(len=:), allocatable :: location
     integer me
 
-      check_assertion: &
-      if (.not. assertion) then
-        ! Avoid harmless warnings from Cray Fortran:
-        allocate(character(len=0)::message)
-        allocate(character(len=0)::location)
+    check_assertion: &
+    if (.not. assertion) then
+      ! Avoid harmless warnings from Cray Fortran:
+      allocate(character(len=0)::message)
+      allocate(character(len=0)::location)
 
-
-        ! format source location, if known
-        location = ''
-        if (present(file)) then
-          location = ' at ' // file // ':'
-          if (present(line)) then ! only print line number if file is also known
-            block
-              character(len=128) line_str
-              write(line_str, '(i0)') line
-              location = location // trim(adjustl(line_str))
-            end block
-          else
-            location = location // '<unknown>'
-          end if
-        end if
-
-#if ASSERT_MULTI_IMAGE
-#  if ASSERT_PARALLEL_CALLBACKS
-        if (associated(assert_this_image)) then
-          me = assert_this_image()
+      ! format source location, if known
+      location = ''
+      if (present(file)) then
+        location = ' at ' // file // ':'
+        if (present(line)) then ! only print line number if file is also known
+          block
+            character(len=128) line_str
+            write(line_str, '(i0)') line
+            location = location // trim(adjustl(line_str))
+          end block
         else
-          me = 0
+          location = location // '<unknown>'
         end if
-#  else
-        me = this_image()
-#  endif
-   block
-        character(len=128) image_number
-        write(image_number, *) me
-        message = 'Assertion failure on image ' // trim(adjustl(image_number)) // location // ': ' // description
-   end block
-#else
+      end if
+
+#   if ASSERT_MULTI_IMAGE
+      me = this_image()
+#   else
+      me = 0
+#   endif
+      if (associated(assert_this_image)) then
+        me = assert_this_image()
+      end if
+      if (me > 0) then
+        block
+          character(len=128) image_number
+          write(image_number, *) me
+          message = 'Assertion failure on image ' // trim(adjustl(image_number)) &
+                      // location // ': ' // description
+        end block
+      else
         message = 'Assertion failure' // location // ': ' // description
-        me = 0 ! avoid a harmless warning
-#endif
- 
-#if ASSERT_PARALLEL_CALLBACKS
-        if (associated(assert_this_image)) then
-          call assert_error_stop(message)
-        else
-          ; ! deliberate fall-thru
-        end if
-#endif
-#ifdef __LFORTRAN__
-        ! workaround a defect observed in LFortran 0.54:
-        ! error stop with an allocatable character argument prints garbage
-        error stop message//'', QUIET=.false.
-#elif __GNUC__ && __GNUC__ < 12
-        ! old GFortran lacks the QUIET optional arg added in F2018
-        error stop message
-#else
-        error stop message, QUIET=.false.
-#endif
+      end if
 
-      end if check_assertion
+      if (associated(assert_error_stop)) then
+        call assert_error_stop(message)
+      end if
+#ifdef __LFORTRAN__
+      ! workaround a defect observed in LFortran 0.54:
+      ! error stop with an allocatable character argument prints garbage
+      error stop message//'', QUIET=.false.
+#elif __GNUC__ && __GNUC__ < 12
+      ! old GFortran lacks the QUIET optional arg added in F2018
+      error stop message
+#else
+      error stop message, QUIET=.false.
+#endif
+    end if check_assertion
 
   end subroutine
 
